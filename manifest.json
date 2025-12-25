@@ -1,0 +1,236 @@
+{
+  "name": "Mustafa Auto Parts",
+  "short_name": "Mustafa",
+  "description": "متجر قطع غيار السيارات مصطفى - جودة عالية، أسعار منافسة، خدمة ممتازة لجميع أنواع السيارات",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0a4f57",
+  "theme_color": "#0a4f57",
+  "categories": ["auto", "shopping", "business"],
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "/",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "اتصال سريع",
+      "short_name": "اتصال",
+      "description": "اتصل بمتجر مصطفى الآن",
+      "url": "./index.html#tel",
+      "icons": [
+        {
+          "src": "./icons/phone-icon-96x96.webp",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "العروض الحالية",
+      "short_name": "العروض",
+      "description": "شاهد أحدث العروض والخصومات",
+      "url": "./index.html#offers",
+      "icons": [
+        {
+          "src": "./icons/offer-icon-96x96.webp",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "الموقع على الخريطة",
+      "short_name": "الخريطة",
+      "description": "اعثر على موقع المتجر على الخريطة",
+      "url": "./index.html#map",
+      "icons": [
+        {
+          "src": "./icons/map-icon-96x96.webp",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "الواتساب",
+      "short_name": "واتساب",
+      "description": "تواصل معنا عبر الواتساب",
+      "url": "./index.html#whatsapp",
+      "icons": [
+        {
+          "src": "./icons/whatsapp-icon-96x96.webp",
+          "sizes": "96x96",
+          "type": "image/webp"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshots/home-light.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "الصفحة الرئيسية - عرض واسع"
+    },
+    {
+      "src": "./screenshots/home-mobile.webp",
+      "sizes": "430x932",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "الصفحة الرئيسية - الهاتف"
+    },
+    {
+      "src": "./screenshots/offers.webp",
+      "sizes": "430x932",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "صفحة العروض"
+    },
+    {
+      "src": "./screenshots/contact.webp",
+      "sizes": "430x932",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "صفحة الاتصال"
+    }
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon-72x72.webp",
+      "sizes": "72x72",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-96x96.webp",
+      "sizes": "96x96",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-128x128.webp",
+      "sizes": "128x128",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-144x144.webp",
+      "sizes": "144x144",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-152x152.webp",
+      "sizes": "152x152",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-192x192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-384x384.webp",
+      "sizes": "384x384",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512x512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "text/*": [".txt", ".html", ".htm"]
+      }
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "permissions": [
+    "clipboard-write"
+  ],
+  "optional_permissions": [
+    "notifications"
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+mustafa",
+      "url": "/handle-protocol?type=%s"
+    }
+  ],
+  "serviceworker": {
+    "src": "./sw.js",
+    "scope": "./",
+    "type": "module",
+    "update_via_cache": "none"
+  },
+  "related_apps": [
+    {
+      "platform": "play",
+      "id": "com.mustafa.autoparts",
+      "url": "https://play.google.com/store/apps/details?id=com.mustafa.autoparts"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/mustafa-auto-parts/id123456789"
+    }
+  ],
+  "theme_color_media": "(prefers-color-scheme: light)",
+  "background_color_media": "(prefers-color-scheme: light)",
+  "dark_theme": {
+    "background_color": "#083a40",
+    "theme_color": "#083a40"
+  },
+  "light_theme": {
+    "background_color": "#0a4f57",
+    "theme_color": "#0a4f57"
+  },
+  "capture_links": "existing-client-navigate",
+  "scope_extensions": [
+    {
+      "origin": "https://mustafa-autoparts.com"
+    },
+    {
+      "origin": "https://piecemustafa.com"
+    }
+  ],
+  "manifest_version": 3,
+  "version": "2.1.0",
+  "author": "Mustafa Auto Parts",
+  "homepage_url": "https://piecemustafa.com",
+  "developer": {
+    "name": "Mustafa Auto Parts",
+    "url": "https://piecemustafa.com",
+    "email": "Piecemustafa9@gmail.com"
+  },
+  "update_url": "https://piecemustafa.com/updates.xml",
+  "minimum_chrome_version": "88",
+  "offline_enabled": true,
+  "side_panel": {
+    "default_path": "./side-panel.html"
+  }
+}

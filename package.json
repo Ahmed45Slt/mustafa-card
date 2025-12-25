@@ -1,0 +1,22 @@
+{
+  "name": "mustafa-auto-parts-pwa",
+  "version": "2.1.0",
+  "description": "Progressive Web App for Mustafa Auto Parts business card",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=8080",
+    "build": "echo 'Build completed'",
+    "deploy": "echo 'Deploy to hosting service'"
+  },
+  "keywords": [
+    "pwa",
+    "business-card",
+    "auto-parts",
+    "arabic",
+    "firebase"
+  ],
+  "author": "Mustafa Auto Parts",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
