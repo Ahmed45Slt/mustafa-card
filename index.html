@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1080,6 +1081,7 @@ import { initFirebase, incrementVisit, loadOffers, loadQR, getAnalyticsData } fr
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
+
             .then(reg => {
                 console.log('✅ Service Worker registered:', reg);
                 reg.update();
@@ -1399,12 +1401,19 @@ window.updateVisitCounter = (count) => {
 window.updateQRCode = (qrUrl) => {
     const qrImg = document.getElementById("qr");
     if (qrImg) {
-        qrImg.src = qrUrl || "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecemustafa.com";
-        qrImg.onload = () => {
-            qrImg.style.opacity = '1';
+        // الحل السحري: إذا لم يتوفر رابط من فايربيز، سننشئ QR Code تلقائياً لرابط موقعك
+        const fallbackQR = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(window.location.href);
+        
+        qrImg.src = qrUrl || fallbackQR;
+        qrImg.style.opacity = '1';
+        
+        // التأكد من عدم وجود خطأ في تحميل الصورة
+        qrImg.onerror = () => {
+            qrImg.src = fallbackQR;
         };
     }
 };
+
 
 // منطق الإدارة
 const loginModal = document.getElementById("loginModal");
@@ -1580,6 +1589,19 @@ document.addEventListener('focusin', (e) => {
 document.addEventListener('focusout', (e) => {
     e.target.classList.remove('focused');
 });
-</script>
+    
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // نستخدم مسار نسبي لضمان العمل على GitHub Pages
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('✅ SW Registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('❌ SW Registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
