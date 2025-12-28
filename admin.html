@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة مصطفى - Mustafa Admin Panel</title>
+    <meta name="description" content="لوحة تحكم إدارة متجر قطع غيار السيارات مصطفى">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0a4f57;
+            --primary-dark: #083a40;
+            --secondary: #00a896;
+            --danger: #ff4d4d;
+            --warning: #ff9900;
+            --warning-dark: #e68900;
+            --success: #4CAF50;
+            --gray: #555;
+            --light: #f0f2f5;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e6e9ef 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* إحصائيات التثبيت - تم دمج الأنماط المكررة */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card, .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+        }
+
+        .stat-card:hover, .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-item {
+            border-left: 4px solid var(--secondary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-card .stat-value {
+            color: var(--white);
+        }
+
+        .stat-item .stat-value {
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-label {
+            opacity: 0.95;
+        }
+
+        .chart-container {
+            height: 250px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input, select, textarea {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: #fafbfc;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.1);
+        }
+
+        button {
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-add:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-del {
+            background: var(--danger);
+            color: var(--white);
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: auto;
+        }
+
+        .btn-del:hover {
+            background: #ff3333;
+        }
+
+        .btn-export {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-export:hover {
+            background: #3d8b40;
+        }
+
+        .btn-logout {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-logout:hover {
+            background: #444;
+        }
+
+        .btn-refresh {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto;
+            font-weight: bold;
+        }
+
+        .btn-refresh:hover {
+            background: var(--primary);
+        }
+
+        .offers-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .offer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .offer-item:hover {
+            background: #f9f9f9;
+        }
+
+        .offer-item:last-child {
+            border-bottom: none;
+        }
+
+        .offer-content {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .offer-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .offer-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .device-stats {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .device-bar {
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .device-label {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+        }
+
+        .device-count {
+            position: absolute;
+            right: 0;
+            font-weight: bold;
+        }
+
+        .device-progress {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .device-progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .mobile .device-progress::after {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: var(--mobile-percent, 50%);
+        }
+
+        .desktop .device-progress::after {
+            background: linear-gradient(90deg, #2196F3, #03A9F4);
+            width: var(--desktop-percent, 50%);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(10, 79, 87, 0.3);
+            min-width: 250px;
+            max-width: 90%;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e1e5e9;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #666;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تحسينات للأجهزة المحمولة */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .admin-container {
+                padding: 0;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .admin-header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            input, select, textarea {
+                min-width: 100%;
+                padding: 12px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card, .stat-item {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .offer-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 12px;
+            }
+            
+            .offer-actions {
+                align-self: stretch;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+            
+            button {
+                padding: 12px 15px;
+                min-width: 100px;
+                font-size: 14px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                min-width: 100%;
+                text-align: right;
+            }
+            
+            .device-label {
+                width: 60px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.6rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .offer-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .offer-actions {
+                justify-content: space-between;
+            }
+            
+            button {
+                min-width: 80px;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            .toast {
+                min-width: 200px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container" id="adminUI" style="display:none;">
+    <div class="admin-header">
+        <h2><i class="fas fa-tools"></i> لوحة تحكم مصطفى</h2>
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div>
+                <div id="userName">المشرف</div>
+                <small id="userEmail"></small>
+            </div>
+            <button class="btn-logout" onclick="window.logout()">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('dashboard')">
+            <i class="fas fa-dashboard"></i> لوحة التحكم
+        </button>
+        <button class="tab" onclick="switchTab('offers')">
+            <i class="fas fa-tags"></i> العروض
+        </button>
+        <button class="tab" onclick="switchTab('analytics')">
+            <i class="fas fa-chart-bar"></i> الإحصائيات
+        </button>
+        <button class="tab" onclick="switchTab('settings')">
+            <i class="fas fa-cogs"></i> الإعدادات
+        </button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div class="tab-content active" id="dashboard-tab">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-eye"></i> إجمالي الزيارات</div>
+                <div class="stat-value" id="totalVisits">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-tags"></i> العروض النشطة</div>
+                <div class="stat-value" id="activeOffers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-calendar"></i> زيارات اليوم</div>
+                <div class="stat-value" id="todayVisits">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label"><i class="fas fa-chart-line"></i> معدل النمو</div>
+                <div class="stat-value" id="growthRate">0%</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-chart-line"></i> زيارات آخر 7 أيام</h3>
+            <div class="chart-container">
+                <canvas id="visitsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-bolt"></i> إجراءات سريعة</h3>
+            <div class="input-group">
+                <button class="btn-add" onclick="exportData('visits')">
+                    <i class="fas fa-download"></i> تصدير الزيارات
+                </button>
+                <button class="btn-export" onclick="exportData('offers')">
+                    <i class="fas fa-file-export"></i> تصدير العروض
+                </button>
+                <button class="btn-logout" onclick="resetVisits()">
+                    <i class="fas fa-redo"></i> مسح العداد
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offers Tab -->
+    <div class="tab-content" id="offers-tab">
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> إضافة عرض جديد</h3>
+            <div class="input-group">
+                <textarea id="newOffer" placeholder="اكتب وصف العرض هنا..." rows="3"></textarea>
+                <select id="offerCategory">
+                    <option value="general">عام</option>
+                    <option value="discount">خصم</option>
+                    <option value="new">جديد</option>
+                    <option value="limited">محدود</option>
+                </select>
+                <input type="number" id="offerPriority" placeholder="الأولوية (0-10)" min="0" max="10" value="0">
+                <button class="btn-add" id="addBtn">
+                    <i class="fas fa-paper-plane"></i> نشر العرض
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-filter"></i> فلترة العروض</h3>
+            <div class="input-group">
+                <select id="filterCategory" onchange="filterOffers()">
+                    <option value="all">جميع الفئات</option>
+                    <option value="general">عام</option>
+                    <option value="discount">خصم</option>
+                    <option value="new">جديد</option>
+                    <option value="limited">محدود</option>
+                </select>
+                <select id="filterStatus" onchange="filterOffers()">
+                    <option value="active">نشطة فقط</option>
+                    <option value="all">الكل</option>
+                    <option value="inactive">غير نشطة</option>
+                </select>
+                <input type="text" id="searchOffer" placeholder="بحث في العروض..." oninput="filterOffers()">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-list"></i> العروض</h3>
+            <div class="offers-list" id="offersList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-content" id="analytics-tab">
+        <div class="card">
+            <h3><i class="fas fa-chart-pie"></i> تحليلات مفصلة</h3>
+            <div class="chart-container">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-calendar-alt"></i> الإحصائيات الزمنية</h3>
+            <div class="input-group">
+                <select id="timeRange" onchange="updateAnalytics()">
+                    <option value="7">آخر 7 أيام</option>
+                    <option value="30">آخر 30 يوم</option>
+                    <option value="90">آخر 90 يوم</option>
+                    <option value="365">آخر سنة</option>
+                </select>
+                <select id="chartType" onchange="updateAnalytics()">
+                    <option value="line">خطي</option>
+                    <option value="bar">أعمدة</option>
+                    <option value="pie">دائري</option>
+                </select>
+                <button class="btn-export" onclick="exportAnalytics()">
+                    <i class="fas fa-download"></i> تصدير التقرير
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-info-circle"></i> ملخص الأداء</h3>
+            <div id="performanceSummary" style="line-height: 1.8;">
+                <div>📈 <strong>أعلى يوم زيارات:</strong> <span id="peakDay">--</span> (<span id="peakVisits">0</span> زيارة)</div>
+                <div>📉 <strong>أقل يوم زيارات:</strong> <span id="lowDay">--</span> (<span id="lowVisits">0</span> زيارة)</div>
+                <div>📊 <strong>متوسط الزيارات اليومي:</strong> <span id="avgVisits">0</span></div>
+                <div>🎯 <strong>نسبة النمو:</strong> <span id="growthPercentage">0%</span></div>
+            </div>
+        </div>
+
+        <!-- قسم إحصائيات التثبيت - تم دمجه في تبويب التحليلات -->
+        <div class="card">
+            <h3><i class="fas fa-download"></i> إحصائيات التثبيت</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalInstalls">0</div>
+                    <div class="stat-label">إجمالي التثبيتات</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="todayInstalls">0</div>
+                    <div class="stat-label">تثبيتات اليوم</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="installRate">0%</div>
+                    <div class="stat-label">معدل التحويل</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="lastInstall">--</div>
+                    <div class="stat-label">آخر تثبيت</div>
+                </div>
+            </div>
+            
+            <!-- توزيع الأجهزة -->
+            <div class="device-stats">
+                <h4><i class="fas fa-mobile-alt"></i> توزيع الأجهزة</h4>
+                <div class="device-bars">
+                    <div class="device-bar mobile">
+                        <span class="device-label">هاتف</span>
+                        <span class="device-count" id="mobileCount">0</span>
+                        <div class="device-progress" id="mobileProgress"></div>
+                    </div>
+                    <div class="device-bar desktop">
+                        <span class="device-label">كمبيوتر</span>
+                        <span class="device-count" id="desktopCount">0</span>
+                        <div class="device-progress" id="desktopProgress"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- رسم بياني -->
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-line"></i> التثبيتات خلال 7 أيام</h4>
+                <canvas id="installChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- تحديث البيانات -->
+            <button onclick="loadInstallStats()" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i> تحديث البيانات
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="settings-tab">
+        <div class="card">
+            <h3><i class="fas fa-qrcode"></i> إعدادات QR Code</h3>
+            <div class="input-group">
+                <input type="url" id="qrUrl" placeholder="رابط QR Code" value="https://piecemustafa.com">
+                <input type="color" id="qrColor" value="#0a4f57" title="لون QR">
+                <input type="color" id="qrBgColor" value="#ffffff" title="لون الخلفية">
+                <button class="btn-add" onclick="updateQRCode()">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-user-shield"></i> إدارة المستخدمين</h3>
+            <div class="input-group">
+                <input type="email" id="newUserEmail" placeholder="البريد الإلكتروني">
+                <input type="password" id="newUserPassword" placeholder="كلمة المرور">
+                <input type="text" id="newUserName" placeholder="اسم المستخدم">
+                <button class="btn-add" onclick="addNewUser()">
+                    <i class="fas fa-user-plus"></i> إضافة مشرف
+                </button>
+            </div>
+            <small style="color: #666; margin-top: 10px; display: block;">
+                <i class="fas fa-info-circle"></i> سيتم إرسال رابط التنشيط إلى البريد الإلكتروني
+            </small>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-database"></i> إدارة البيانات</h3>
+            <div class="input-group">
+                <button class="btn-export" onclick="backupData()">
+                    <i class="fas fa-download"></i> نسخ احتياطي
+                </button>
+                <button class="btn-logout" onclick="clearCache()">
+                    <i class="fas fa-broom"></i> مسح الكاش
+                </button>
+                <button class="btn-del" onclick="showResetConfirm()">
+                    <i class="fas fa-trash"></i> حذف جميع البيانات
+                </button>
+            </div>
+            <small style="color: #666; margin-top: 10px; display: block;">
+                <i class="fas fa-exclamation-triangle"></i> احذر: بعض الإجراءات لا يمكن التراجع عنها
+            </small>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-info-circle"></i> معلومات النظام</h3>
+            <div id="systemInfo" style="line-height: 1.8;">
+                <div>🔄 <strong>آخر تحديث:</strong> <span id="lastUpdate">--</span></div>
+                <div>💾 <strong>حجم البيانات:</strong> <span id="dataSize">--</span></div>
+                <div>📱 <strong>إصدار التطبيق:</strong> <span id="appVersion">2.1.0</span></div>
+                <div>🔗 <strong>حالة الاتصال:</strong> <span id="connectionStatus"><i class="fas fa-wifi"></i> متصل</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تسجيل الدخول -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-lock"></i> تسجيل الدخول للإدارة</h3>
+        <div style="margin-bottom: 20px;">
+            <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" style="width:100%; margin-bottom:10px;">
+            <div style="position:relative;">
+                <input type="password" id="adminPassword" placeholder="كلمة المرور" style="width:100%;">
+                <button type="button" id="passwordToggle" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#666;">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button id="loginBtn" class="btn-add" style="flex:1;">
+                <span id="loginText">دخول</span>
+                <span id="loginLoader" class="loading" style="display:none;"></span>
+            </button>
+            <button id="closeModal" style="background:#ccc;color:#000; flex:1;">
+                <i class="fas fa-times"></i> إلغاء
+            </button>
+        </div>
+        <small style="color: #666; margin-top: 20px; display: block;">
+            <i class="fas fa-shield-alt"></i> مساحة خاصة للمشرفين فقط
+        </small>
+    </div>
+</div>
+
+<!-- نافذة تأكيد -->
+<div class="modal" id="confirmModal" style="display:none;">
+    <div class="modal-content">
+        <div id="confirmIcon" style="font-size:3rem; color:var(--danger); margin-bottom:20px;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 id="confirmTitle">تأكيد الإجراء</h3>
+        <p id="confirmMessage" style="color:#666; margin-bottom:30px; line-height:1.6;"></p>
+        <div style="display:flex; gap:15px;">
+            <button id="confirmYes" class="btn-del" style="flex:1;">نعم، تأكيد</button>
+            <button id="confirmNo" style="background:var(--gray);color:var(--white); flex:1;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { 
+    db, 
+    auth, 
+    AuthManager, 
+    addOffer, 
+    deleteOffer, 
+    getAnalyticsData, 
+    exportDataAsCSV,
+    FirebaseUtils 
+} from './firebase.js';
+
+import { 
+    doc, 
+    setDoc, 
+    getDoc,
+    onSnapshot, 
+    collection, 
+    query, 
+    orderBy,
+    getDocs,
+    writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// متغيرات التطبيق
+let currentUser = null;
+let visitsChart = null;
+let analyticsChart = null;
+let installChart = null;
+let offersUnsubscribe = null;
+let visitsUnsubscribe = null;
+let currentFilter = { category: 'all', status: 'active' };
+let allOffers = [];
+
+// ============ دالة ذكية لإصلاح بيانات الزيارات ============
+async function smartFixVisitsData() {
+    try {
+        console.log('🔧 [Smart Fix] Starting intelligent data repair...');
+        
+        const visitsRef = doc(db, "visits", "counter");
+        const snapshot = await getDoc(visitsRef);
+        
+        if (!snapshot.exists()) {
+            console.log('📝 [Smart Fix] No data found, creating initial structure...');
+            const today = new Date().toISOString().split('T')[0];
+            await setDoc(visitsRef, {
+                count: 0,
+                daily: { [today]: 0 },
+                createdAt: new Date().toISOString(),
+                lastUpdated: new Date().toISOString()
+            });
+            return { success: true, total: 0, today: 0 };
+        }
+        
+        const data = snapshot.data();
+        console.log('📊 [Smart Fix] Current data structure:', data);
+        
+        // جمع جميع بيانات الزيارات من جميع المصادر
+        const collectedData = {};
+        
+        // 1. جمع من daily object إذا كان موجودًا
+        if (data.daily && typeof data.daily === 'object') {
+            Object.keys(data.daily).forEach(date => {
+                const cleanDate = date.replace('daily.', '');
+                collectedData[cleanDate] = Number(data.daily[date]) || 0;
+            });
+        }
+        
+        // 2. جمع من المفاتيح المباشرة مع daily. prefix
+        Object.keys(data).forEach(key => {
+            if (key.startsWith('daily.') && key !== 'daily') {
+                const cleanDate = key.replace('daily.', '');
+                const value = Number(data[key]) || 0;
+                // استخدم القيمة الأعلى إذا كان هناك تكرار
+                if (!collectedData[cleanDate] || value > collectedData[cleanDate]) {
+                    collectedData[cleanDate] = value;
+                }
+            }
+        });
+        
+        console.log('📅 [Smart Fix] Collected data:', collectedData);
+        
+        // 3. تأكد من وجود اليوم الحالي
+        const today = new Date().toISOString().split('T')[0];
+        if (!collectedData[today]) {
+            // ابحث عن أي قيمة لليوم في أي مكان
+            let todayValue = 0;
+            if (data[`daily.${today}`] !== undefined) {
+                todayValue = Number(data[`daily.${today}`]) || 0;
+            } else if (data.daily && data.daily[today] !== undefined) {
+                todayValue = Number(data.daily[today]) || 0;
+            }
+            collectedData[today] = todayValue;
+            console.log(`📝 [Smart Fix] Today's value set to: ${todayValue}`);
+        }
+        
+        // 4. حساب الإجمالي
+        const totalCount = Object.values(collectedData).reduce((sum, val) => sum + val, 0);
+        
+        // 5. تحضير البيانات النظيفة للحفظ
+        const cleanData = {
+            count: totalCount,
+            daily: collectedData,
+            lastUpdated: new Date().toISOString(),
+            lastFixed: new Date().toISOString()
+        };
+        
+        // 6. إزالة المفاتيح القديمة
+        const updateData = { ...data };
+        Object.keys(updateData).forEach(key => {
+            if (key.startsWith('daily.') && key !== 'daily') {
+                delete updateData[key];
+            }
+        });
+        
+        // 7. دمج مع البيانات النظيفة
+        Object.assign(updateData, cleanData);
+        
+        console.log('🧹 [Smart Fix] Final data to save:', updateData);
+        
+        // 8. حفظ البيانات
+        await setDoc(visitsRef, updateData, { merge: true });
+        
+        console.log('✅ [Smart Fix] Data repair completed successfully!');
+        console.log(`📊 Total visits: ${totalCount}`);
+        console.log(`📅 Today (${today}): ${collectedData[today]}`);
+        
+        return { success: true, total: totalCount, today: collectedData[today] };
+        
+    } catch (error) {
+        console.error('❌ [Smart Fix] Error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// ============ تحميل بيانات الزيارات (بسيط وفعال) ============
+async function loadVisits() {
+    console.log('🔄 [Visits] Loading visits data...');
+    
+    const visitsRef = doc(db, "visits", "counter");
+    
+    try {
+        // إصلاح ذكي للبيانات أولاً
+        const fixResult = await smartFixVisitsData();
+        if (fixResult.success) {
+            console.log('✅ [Visits] Data fixed, showing:', fixResult);
+            
+            // عرض القيم المباشرة من الإصلاح
+            document.getElementById('totalVisits').textContent = fixResult.total.toLocaleString();
+            document.getElementById('todayVisits').textContent = fixResult.today.toLocaleString();
+        }
+        
+        // ثم الاستماع للتحديثات
+        visitsUnsubscribe = onSnapshot(visitsRef, (snapshot) => {
+            if (!snapshot.exists()) {
+                console.log('⚠️ [Visits] No data found in snapshot');
+                document.getElementById('totalVisits').textContent = '0';
+                document.getElementById('todayVisits').textContent = '0';
+                return;
+            }
+            
+            const data = snapshot.data();
+            
+            // البحث الذكي عن القيم
+            const today = new Date().toISOString().split('T')[0];
+            let todayVisits = 0;
+            let totalVisits = 0;
+            
+            // 1. البحث في daily object
+            if (data.daily && data.daily[today] !== undefined) {
+                todayVisits = Number(data.daily[today]) || 0;
+            }
+            
+            // 2. البحث في المفاتيح المباشرة (backward compatibility)
+            if (data[`daily.${today}`] !== undefined) {
+                todayVisits = Number(data[`daily.${today}`]) || 0;
+            }
+            
+            // 3. حساب الإجمالي
+            if (data.count !== undefined) {
+                totalVisits = Number(data.count) || 0;
+            } else if (data.daily && typeof data.daily === 'object') {
+                // حساب من daily object
+                totalVisits = Object.values(data.daily).reduce((sum, val) => sum + (Number(val) || 0), 0);
+            }
+            
+            console.log(`📊 [Visits Live] Today: ${todayVisits}, Total: ${totalVisits}`);
+            
+            // تحديث الواجهة
+            document.getElementById('totalVisits').textContent = totalVisits.toLocaleString();
+            document.getElementById('todayVisits').textContent = todayVisits.toLocaleString();
+            
+            // تحديث الرسم البياني
+            if (data.daily && typeof data.daily === 'object') {
+                updateVisitsChart(data.daily);
+                calculateGrowthRate(data.daily);
+            }
+        }, (error) => {
+            console.error('❌ [Visits] Firestore error:', error);
+            showToast('خطأ في تحميل بيانات الزيارات', 'error');
+        });
+        
+    } catch (error) {
+        console.error('❌ [Visits] Error:', error);
+        showToast('خطأ في تحميل بيانات الزيارات', 'error');
+    }
+}
+
+// ============ تحديث مخطط الزيارات ============
+function updateVisitsChart(dailyData) {
+    try {
+        if (!dailyData || typeof dailyData !== 'object') {
+            console.log('⚠️ [Chart] No valid daily data provided');
+            return;
+        }
+        
+        // تنظيف البيانات
+        const chartData = {};
+        Object.keys(dailyData).forEach(key => {
+            const cleanKey = key.replace('daily.', '');
+            chartData[cleanKey] = Number(dailyData[key]) || 0;
+        });
+        
+        // الحصول على آخر 7 أيام
+        const sortedDates = Object.keys(chartData).sort();
+        const last7Dates = sortedDates.slice(-7);
+        
+        if (last7Dates.length === 0) {
+            console.log('⚠️ [Chart] No dates available for chart');
+            return;
+        }
+        
+        // تحضير البيانات
+        const labels = last7Dates.map(date => {
+            try {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+            } catch (e) {
+                return date;
+            }
+        });
+        
+        const visits = last7Dates.map(date => chartData[date] || 0);
+        
+        // تحديث أو إنشاء الرسم البياني
+        const ctx = document.getElementById('visitsChart');
+        if (!ctx) {
+            console.log('⚠️ [Chart] Canvas element not found');
+            return;
+        }
+        
+        if (!visitsChart) {
+            visitsChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'الزيارات',
+                        data: visits,
+                        borderColor: '#0a4f57',
+                        backgroundColor: 'rgba(10, 79, 87, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Tajawal, Arial'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Tajawal, Arial'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            visitsChart.data.labels = labels;
+            visitsChart.data.datasets[0].data = visits;
+            visitsChart.update();
+        }
+        
+    } catch (error) {
+        console.error('❌ [Chart] Error:', error);
+    }
+}
+
+// ============ حساب معدل النمو ============
+function calculateGrowthRate(dailyData) {
+    try {
+        if (!dailyData || typeof dailyData !== 'object') return;
+        
+        const chartData = {};
+        Object.keys(dailyData).forEach(key => {
+            const cleanKey = key.replace('daily.', '');
+            chartData[cleanKey] = Number(dailyData[key]) || 0;
+        });
+        
+        const sortedDates = Object.keys(chartData).sort();
+        
+        if (sortedDates.length >= 2) {
+            const lastDate = sortedDates[sortedDates.length - 1];
+            const prevDate = sortedDates[sortedDates.length - 2];
+            
+            const lastVisits = chartData[lastDate] || 0;
+            const prevVisits = chartData[prevDate] || 0;
+            
+            let growthRate = 0;
+            if (prevVisits > 0) {
+                growthRate = Math.round(((lastVisits - prevVisits) / prevVisits) * 100);
+            }
+            
+            document.getElementById('growthRate').textContent = `${growthRate > 0 ? '+' : ''}${growthRate}%`;
+        }
+    } catch (error) {
+        console.error('❌ [Growth] Error:', error);
+        document.getElementById('growthRate').textContent = '0%';
+    }
+}
+
+// ============ تهيئة التطبيق ============
+async function initAdmin() {
+    try {
+        console.log('🚀 [Init] Initializing admin panel...');
+        
+        // تحقق من المصادقة
+        AuthManager.onAuthStateChange(async (user) => {
+            if (user) {
+                currentUser = user;
+                showAdminUI();
+                
+                // تحميل البيانات
+                await loadData();
+                setupCharts();
+                
+                console.log('✅ [Init] Admin panel initialized successfully');
+            } else {
+                showLoginUI();
+            }
+        });
+        
+        // تهيئة واجهة المستخدم
+        setupEventListeners();
+        updateSystemInfo();
+        setupInstallStats();
+        
+    } catch (error) {
+        console.error('❌ [Init] Error:', error);
+        showToast('خطأ في تهيئة النظام', 'error');
+    }
+}
+
+// ============ تحميل جميع البيانات ============
+async function loadData() {
+    try {
+        await Promise.all([
+            loadVisits(),
+            loadOffers(),
+            loadAnalytics()
+        ]);
+        showToast('تم تحميل البيانات بنجاح', 'success');
+    } catch (error) {
+        console.error('❌ [Load Data] Error:', error);
+        showToast('خطأ في تحميل البيانات', 'error');
+    }
+}
+
+// ============ بقية الدوال (مع التحقق من null) ============
+function showAdminUI() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('adminUI').style.display = 'block';
+    
+    document.getElementById('userEmail').textContent = currentUser.email;
+    document.getElementById('userName').textContent = currentUser.displayName || 'المشرف';
+    
+    showToast(`مرحباً ${currentUser.displayName || 'بالسادة المشرفين'}!`, 'success');
+}
+
+function showLoginUI() {
+    const loginModal = document.getElementById('loginModal');
+    const adminUI = document.getElementById('adminUI');
+    
+    if (loginModal) loginModal.style.display = 'flex';
+    if (adminUI) adminUI.style.display = 'none';
+}
+
+async function loadOffers() {
+    try {
+        const container = document.getElementById('offersList');
+        if (!container) {
+            console.log('⚠️ [Offers] Container not found, creating...');
+            const offersTab = document.getElementById('offers-tab');
+            if (offersTab) {
+                const card = offersTab.querySelector('.card:nth-child(3)');
+                if (card) {
+                    const offersList = document.createElement('div');
+                    offersList.className = 'offers-list';
+                    offersList.id = 'offersList';
+                    card.appendChild(offersList);
+                }
+            }
+        }
+        
+        const q = query(
+            collection(db, "offers"),
+            orderBy("timestamp", "desc")
+        );
+        
+        offersUnsubscribe = onSnapshot(q, (snapshot) => {
+            allOffers = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                allOffers.push({
+                    id: doc.id,
+                    text: data.text || '',
+                    active: data.active !== false,
+                    category: data.category || 'general',
+                    priority: data.priority || 0,
+                    timestamp: data.timestamp?.toDate() || new Date(),
+                    createdBy: data.createdBy || 'admin'
+                });
+            });
+            
+            const activeCount = allOffers.filter(o => o.active).length;
+            document.getElementById('activeOffers').textContent = activeCount;
+            filterOffers();
+        }, (error) => {
+            console.error('❌ [Offers] Error:', error);
+            const container = document.getElementById('offersList');
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+                        <p>حدث خطأ في تحميل العروض</p>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ [Offers Setup] Error:', error);
+    }
+}
+
+function displayOffers(offers) {
+    const container = document.getElementById('offersList');
+    if (!container) {
+        console.error('❌ [Display Offers] Container not found');
+        return;
+    }
+    
+    if (offers.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" id="emptyOffers">
+                <i class="fas fa-inbox"></i>
+                <p>لا توجد عروض</p>
+                <small>ابدأ بإضافة عرض جديد</small>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = '';
+    offers.forEach((offer) => {
+        const item = document.createElement('div');
+        item.className = 'offer-item';
+        item.innerHTML = `
+            <div class="offer-content">
+                <div style="font-weight:500;">${offer.text}</div>
+                <div class="offer-meta">
+                    <span><i class="fas fa-tag"></i> ${getCategoryName(offer.category)}</span>
+                    <span><i class="fas fa-star"></i> ${offer.priority}</span>
+                    <span><i class="fas fa-user"></i> ${offer.createdBy}</span>
+                    <span><i class="fas fa-clock"></i> ${formatDateEnglish(offer.timestamp)}</span>
+                    <span style="color:${offer.active ? 'var(--success)' : 'var(--danger)'};">
+                        <i class="fas fa-circle"></i> ${offer.active ? 'نشط' : 'غير نشط'}
+                    </span>
+                </div>
+            </div>
+            <div class="offer-actions">
+                <button class="btn-del" onclick="deleteOfferHandler('${offer.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button class="btn-add" onclick="toggleOfferStatus('${offer.id}', ${!offer.active})">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+function filterOffers() {
+    const category = document.getElementById('filterCategory')?.value || 'all';
+    const status = document.getElementById('filterStatus')?.value || 'active';
+    const search = document.getElementById('searchOffer')?.value?.toLowerCase() || '';
+    
+    let filtered = allOffers;
+    
+    if (category !== 'all') filtered = filtered.filter(offer => offer.category === category);
+    if (status === 'active') filtered = filtered.filter(offer => offer.active);
+    else if (status === 'inactive') filtered = filtered.filter(offer => !offer.active);
+    if (search) filtered = filtered.filter(offer => offer.text.toLowerCase().includes(search));
+    
+    displayOffers(filtered);
+}
+
+function getCategoryName(category) {
+    const names = {
+        'general': 'عام',
+        'discount': 'خصم',
+        'new': 'جديد',
+        'limited': 'محدود'
+    };
+    return names[category] || category;
+}
+
+async function loadAnalytics() {
+    try {
+        const data = await getAnalyticsData(7);
+        updatePerformanceSummary(data);
+        updateAnalyticsChart(data);
+    } catch (error) {
+        console.error('❌ [Analytics] Error:', error);
+    }
+}
+
+function updatePerformanceSummary(data) {
+    if (!data) return;
+    
+    const dailyVisits = data.dailyVisits || [];
+    if (dailyVisits.length === 0) return;
+    
+    const peak = dailyVisits.reduce((max, day) => day.count > max.count ? day : max, dailyVisits[0]);
+    const low = dailyVisits.reduce((min, day) => day.count < min.count ? day : min, dailyVisits[0]);
+    const total = dailyVisits.reduce((sum, day) => sum + day.count, 0);
+    const avg = Math.round(total / dailyVisits.length);
+    
+    const peakDayEl = document.getElementById('peakDay');
+    const peakVisitsEl = document.getElementById('peakVisits');
+    const lowDayEl = document.getElementById('lowDay');
+    const lowVisitsEl = document.getElementById('lowVisits');
+    const avgVisitsEl = document.getElementById('avgVisits');
+    const growthPercentageEl = document.getElementById('growthPercentage');
+    
+    if (peakDayEl) peakDayEl.textContent = formatDateEnglish(peak.date);
+    if (peakVisitsEl) peakVisitsEl.textContent = peak.count;
+    if (lowDayEl) lowDayEl.textContent = formatDateEnglish(low.date);
+    if (lowVisitsEl) lowVisitsEl.textContent = low.count;
+    if (avgVisitsEl) avgVisitsEl.textContent = avg;
+    
+    if (dailyVisits.length > 1 && growthPercentageEl) {
+        const first = dailyVisits[dailyVisits.length - 1].count;
+        const last = dailyVisits[0].count;
+        const growth = first > 0 ? Math.round(((last - first) / first) * 100) : 0;
+        growthPercentageEl.textContent = `${growth > 0 ? '+' : ''}${growth}%`;
+    }
+}
+
+function setupCharts() {
+    // مخطط التحليلات
+    const analyticsCanvas = document.getElementById('analyticsChart');
+    if (!analyticsCanvas) {
+        console.log('⚠️ [Charts] Analytics canvas not found');
+        return;
+    }
+    
+    const analyticsCtx = analyticsCanvas.getContext('2d');
+    analyticsChart = new Chart(analyticsCtx, {
+        type: 'pie',
+        data: {
+            labels: ['الزيارات', 'العروض', 'المستخدمون'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#0a4f57', '#00a896', '#ff9900']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    rtl: true,
+                    labels: { font: { family: 'Tajawal, Arial' } }
+                }
+            }
+        }
+    });
+}
+
+async function updateAnalyticsChart(data) {
+    if (!analyticsChart || !data) return;
+    
+    const visits = data.totalVisits || 0;
+    const offers = data.activeOffers || 0;
+    analyticsChart.data.datasets[0].data = [visits, offers, 1];
+    analyticsChart.update();
+}
+
+async function updateAnalytics() {
+    try {
+        const days = parseInt(document.getElementById('timeRange')?.value || 7);
+        const chartType = document.getElementById('chartType')?.value || 'line';
+        
+        if (analyticsChart) {
+            analyticsChart.config.type = chartType;
+        }
+        
+        const data = await getAnalyticsData(days);
+        updateAnalyticsChart(data);
+        updatePerformanceSummary(data);
+        
+        if (analyticsChart) {
+            analyticsChart.update();
+        }
+    } catch (error) {
+        console.error('❌ [Update Analytics] Error:', error);
+    }
+}
+
+function setupEventListeners() {
+    // تبديل كلمة المرور
+    const passwordToggle = document.getElementById('passwordToggle');
+    if (passwordToggle) {
+        passwordToggle.onclick = function() {
+            const passwordInput = document.getElementById('adminPassword');
+            const icon = this.querySelector('i');
+            if (passwordInput && icon) {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            }
+        };
+    }
+    
+    // تسجيل الدخول
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.onclick = handleLogin;
+    }
+    
+    const closeModal = document.getElementById('closeModal');
+    if (closeModal) {
+        closeModal.onclick = () => {
+            window.location.href = './index.html';
+        };
+    }
+    
+    // إضافة عرض
+    const addBtn = document.getElementById('addBtn');
+    if (addBtn) {
+        addBtn.onclick = handleAddOffer;
+    }
+    
+    const newOffer = document.getElementById('newOffer');
+    if (newOffer) {
+        newOffer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const addBtn = document.getElementById('addBtn');
+                if (addBtn) addBtn.click();
+            }
+        });
+    }
+    
+    // تأكيد الإجراءات
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
+    
+    if (confirmYes) {
+        confirmYes.onclick = () => {
+            const modal = document.getElementById('confirmModal');
+            if (!modal) return;
+            
+            const action = modal.dataset.action;
+            const data = modal.dataset.data;
+            
+            if (action === 'deleteOffer') deleteOfferConfirmed(data);
+            else if (action === 'resetVisits') resetVisitsConfirmed();
+            else if (action === 'clearAllData') clearAllDataConfirmed();
+            
+            hideConfirmModal();
+        };
+    }
+    
+    if (confirmNo) {
+        confirmNo.onclick = hideConfirmModal;
+    }
+}
+
+async function handleLogin() {
+    const email = document.getElementById('adminEmail')?.value;
+    const password = document.getElementById('adminPassword')?.value;
+    
+    if (!email || !password) {
+        showToast('يرجى ملء جميع الحقول', 'error');
+        return;
+    }
+    
+    const loginText = document.getElementById('loginText');
+    const loginLoader = document.getElementById('loginLoader');
+    
+    if (loginText) loginText.style.display = 'none';
+    if (loginLoader) loginLoader.style.display = 'inline-block';
+    
+    try {
+        await AuthManager.login(email, password);
+    } catch (error) {
+        showToast(error.message, 'error');
+        const adminPassword = document.getElementById('adminPassword');
+        if (adminPassword) adminPassword.value = '';
+    } finally {
+        if (loginText) loginText.style.display = 'inline';
+        if (loginLoader) loginLoader.style.display = 'none';
+    }
+}
+
+async function handleAddOffer() {
+    const text = document.getElementById('newOffer')?.value.trim();
+    const category = document.getElementById('offerCategory')?.value || 'general';
+    const priority = parseInt(document.getElementById('offerPriority')?.value || 0);
+    
+    if (!text) {
+        showToast('يرجى كتابة نص العرض', 'error');
+        return;
+    }
+    
+    const addBtn = document.getElementById('addBtn');
+    if (!addBtn) return;
+    
+    const originalText = addBtn.innerHTML;
+    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+    addBtn.disabled = true;
+    
+    try {
+        await addOffer(text, { category, priority, active: true });
+        const newOfferInput = document.getElementById('newOffer');
+        if (newOfferInput) newOfferInput.value = '';
+        showToast('تم إضافة العرض بنجاح!', 'success');
+        switchTab('offers');
+    } catch (error) {
+        showToast(error.message, 'error');
+    } finally {
+        addBtn.innerHTML = originalText;
+        addBtn.disabled = false;
+    }
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    
+    const tabContent = document.getElementById(`${tabName}-tab`);
+    if (tabContent) tabContent.classList.add('active');
+    
+    const tabButton = document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`);
+    if (tabButton) tabButton.classList.add('active');
+}
+
+async function deleteOfferHandler(offerId) {
+    const offer = allOffers.find(o => o.id === offerId);
+    if (!offer) return;
+    
+    showConfirmModal(
+        'حذف العرض',
+        `هل أنت متأكد من رغبتك في حذف العرض "${offer.text.substring(0, 50)}..."؟`,
+        'deleteOffer',
+        offerId
+    );
+}
+
+async function deleteOfferConfirmed(offerId) {
+    try {
+        await deleteOffer(offerId);
+        showToast('تم حذف العرض بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function toggleOfferStatus(offerId, active) {
+    try {
+        await setDoc(doc(db, "offers", offerId), { active }, { merge: true });
+        showToast(`تم ${active ? 'تفعيل' : 'تعطيل'} العرض`, 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function exportData(type) {
+    try {
+        await exportDataAsCSV(type);
+        showToast(`تم تصدير بيانات ${type === 'visits' ? 'الزيارات' : 'العروض'}`, 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function exportAnalytics() {
+    try {
+        const days = parseInt(document.getElementById('timeRange')?.value || 7);
+        const data = await getAnalyticsData(days);
+        
+        const reportDate = formatDateEnglish(new Date().toISOString());
+        const report = `<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+        <title>تقرير مصطفى - ${reportDate}</title><style>
+        body{font-family:Tahoma;padding:20px;}h1{color:#0a4f57;}table{width:100%;border-collapse:collapse;margin:20px 0;}
+        th,td{border:1px solid #ddd;padding:10px;text-align:center;}th{background:#f0f0f0;}
+        .summary{background:#f9f9f9;padding:15px;border-radius:5px;margin:20px 0;}</style></head>
+        <body><h1>تقرير أداء متجر مصطفى</h1><p>تاريخ التقرير: ${reportDate}</p>
+        <div class="summary"><h3>ملخص الأداء:</h3><p>إجمالي الزيارات: ${data.totalVisits}</p>
+        <p>العروض النشطة: ${data.activeOffers}</p><p>فترة التقرير: آخر ${days} يوم</p></div>
+        <h3>الزيارات اليومية:</h3><table><tr><th>التاريخ</th><th>عدد الزيارات</th></tr>
+        ${(data.dailyVisits || []).map(day => `<tr><td>${formatDateEnglish(day.date)}</td><td>${day.count}</td></tr>`).join('')}
+        </table><p style="margin-top:40px;text-align:center;color:#666;">تم إنشاء هذا التقرير تلقائياً من نظام إدارة متجر مصطفى</p>
+        </body></html>`;
+        
+        const blob = new Blob([report], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `mustafa_report_${new Date().toISOString().split('T')[0]}.html`);
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('تم إنشاء التقرير بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function resetVisits() {
+    showConfirmModal(
+        'مسح عداد الزيارات',
+        'هل أنت متأكد من رغبتك في مسح عداد الزيارات؟ سيتم ضبط العداد إلى الصفر.',
+        'resetVisits'
+    );
+}
+
+async function resetVisitsConfirmed() {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        await setDoc(doc(db, "visits", "counter"), { 
+            count: 0,
+            daily: { [today]: 0 },
+            resetAt: new Date().toISOString(),
+            resetBy: currentUser.email
+        }, { merge: true });
+        
+        showToast('تم مسح العداد بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function updateQRCode() {
+    const url = document.getElementById('qrUrl')?.value;
+    const color = document.getElementById('qrColor')?.value.replace('#', '');
+    const bgColor = document.getElementById('qrBgColor')?.value.replace('#', '');
+    
+    if (!url) {
+        showToast('يرجى إدخال رابط QR Code', 'error');
+        return;
+    }
+    
+    try {
+        await setDoc(doc(db, "settings", "qr"), {
+            url: url,
+            color: color,
+            bgColor: bgColor,
+            updatedAt: new Date().toISOString(),
+            updatedBy: currentUser.email
+        }, { merge: true });
+        
+        showToast('تم تحديث QR Code بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function addNewUser() {
+    const email = document.getElementById('newUserEmail')?.value;
+    const password = document.getElementById('newUserPassword')?.value;
+    const name = document.getElementById('newUserName')?.value;
+    
+    if (!email || !password || !name) {
+        showToast('يرجى ملء جميع الحقول', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+        return;
+    }
+    
+    try {
+        await AuthManager.createAdminUser(email, password, name);
+        const newUserEmail = document.getElementById('newUserEmail');
+        const newUserPassword = document.getElementById('newUserPassword');
+        const newUserName = document.getElementById('newUserName');
+        
+        if (newUserEmail) newUserEmail.value = '';
+        if (newUserPassword) newUserPassword.value = '';
+        if (newUserName) newUserName.value = '';
+        
+        showToast(`تم إنشاء حساب المشرف ${name} بنجاح`, 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function backupData() {
+    try {
+        const backup = {
+            timestamp: new Date().toISOString(),
+            createdBy: currentUser.email,
+            data: {}
+        };
+        
+        const offersSnapshot = await getDocs(collection(db, "offers"));
+        backup.data.offers = offersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const visitsDoc = await getDoc(doc(db, "visits", "counter"));
+        if (visitsDoc.exists()) backup.data.visits = visitsDoc.data();
+        
+        const json = JSON.stringify(backup, null, 2);
+        const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `mustafa_backup_${new Date().toISOString().split('T')[0]}.json`);
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showToast('تم إنشاء نسخة احتياطية بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function clearCache() {
+    FirebaseUtils.clearCache();
+    localStorage.clear();
+    sessionStorage.clear();
+    showToast('تم مسح الذاكرة المؤقتة بنجاح', 'success');
+}
+
+function showResetConfirm() {
+    showConfirmModal(
+        'حذف جميع البيانات',
+        '⚠️ تحذير: هذا الإجراء سيمسح جميع العروض والإحصائيات! هذا الإجراء لا يمكن التراجع عنه.',
+        'clearAllData'
+    );
+}
+
+async function clearAllDataConfirmed() {
+    try {
+        const batch = writeBatch(db);
+        const offersSnapshot = await getDocs(collection(db, "offers"));
+        offersSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+        
+        const today = new Date().toISOString().split('T')[0];
+        batch.set(doc(db, "visits", "counter"), {
+            count: 0,
+            daily: { [today]: 0 },
+            resetAt: new Date().toISOString(),
+            resetBy: currentUser.email
+        }, { merge: true });
+        
+        await batch.commit();
+        showToast('تم حذف جميع البيانات بنجاح', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function logout() {
+    try {
+        await AuthManager.logout();
+        showToast('تم تسجيل الخروج بنجاح', 'info');
+        setTimeout(() => window.location.href = './index.html', 1000);
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function updateSystemInfo() {
+    const lastUpdateEl = document.getElementById('lastUpdate');
+    const appVersionEl = document.getElementById('appVersion');
+    const connectionStatusEl = document.getElementById('connectionStatus');
+    
+    if (lastUpdateEl) lastUpdateEl.textContent = formatDateEnglish(new Date().toISOString());
+    if (appVersionEl) appVersionEl.textContent = '2.1.0';
+    
+    updateConnectionStatus();
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+}
+
+function updateConnectionStatus() {
+    const statusElement = document.getElementById('connectionStatus');
+    if (!statusElement) return;
+    
+    if (navigator.onLine) {
+        statusElement.innerHTML = '<i class="fas fa-wifi"></i> متصل';
+        statusElement.style.color = 'var(--success)';
+    } else {
+        statusElement.innerHTML = '<i class="fas fa-wifi-slash"></i> غير متصل';
+        statusElement.style.color = 'var(--danger)';
+    }
+}
+
+function setupInstallStats() {
+    if (typeof Chart !== 'undefined') {
+        setTimeout(() => loadInstallStats(), 1000);
+    } else {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = () => setTimeout(() => loadInstallStats(), 1000);
+        document.head.appendChild(script);
+    }
+    setInterval(loadInstallStats, 60000);
+}
+
+async function loadInstallStats() {
+    try {
+        const { getInstallStats } = await import('./firebase.js');
+        const stats = await getInstallStats(7);
+        
+        const totalInstallsEl = document.getElementById('totalInstalls');
+        const todayInstallsEl = document.getElementById('todayInstalls');
+        const installRateEl = document.getElementById('installRate');
+        const lastInstallEl = document.getElementById('lastInstall');
+        const mobileCountEl = document.getElementById('mobileCount');
+        const desktopCountEl = document.getElementById('desktopCount');
+        const mobileProgressEl = document.getElementById('mobileProgress');
+        const desktopProgressEl = document.getElementById('desktopProgress');
+        
+        if (totalInstallsEl) totalInstallsEl.textContent = stats.total.toLocaleString();
+        
+        const today = new Date().toISOString().split('T')[0];
+        const todayData = stats.daily.find(d => d.date === today);
+        if (todayInstallsEl) todayInstallsEl.textContent = todayData ? todayData.count : 0;
+        
+        const { getAnalyticsData } = await import('./firebase.js');
+        const analytics = await getAnalyticsData(7);
+        const totalVisits = analytics.totalVisits || 1;
+        const installRate = ((stats.total / totalVisits) * 100).toFixed(1);
+        if (installRateEl) installRateEl.textContent = installRate + '%';
+        
+        if (stats.lastInstall && lastInstallEl) {
+            const lastDate = new Date(stats.lastInstall);
+            lastInstallEl.textContent = lastDate.toLocaleDateString('en-GB');
+        }
+        
+        if (mobileCountEl) mobileCountEl.textContent = stats.devices.mobile || 0;
+        if (desktopCountEl) desktopCountEl.textContent = stats.devices.desktop || 0;
+        
+        const totalDevices = stats.devices.mobile + stats.devices.desktop || 1;
+        const mobilePercent = ((stats.devices.mobile / totalDevices) * 100).toFixed(0);
+        const desktopPercent = ((stats.devices.desktop / totalDevices) * 100).toFixed(0);
+        
+        if (mobileProgressEl) mobileProgressEl.style.setProperty('--mobile-percent', mobilePercent + '%');
+        if (desktopProgressEl) desktopProgressEl.style.setProperty('--desktop-percent', desktopPercent + '%');
+        
+        updateInstallChart(stats.daily);
+        
+    } catch (error) {
+        console.error('❌ [Install Stats] Error:', error);
+    }
+}
+
+function updateInstallChart(dailyData) {
+    const ctx = document.getElementById('installChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    if (installChart) installChart.destroy();
+    
+    const labels = dailyData.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString('ar-SA', { weekday: 'short' });
+    }).reverse();
+    
+    const data = dailyData.map(d => d.count).reverse();
+    
+    installChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'عدد التثبيتات',
+                data: data,
+                borderColor: '#00a896',
+                backgroundColor: 'rgba(0, 168, 150, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { font: { family: 'Tajawal' } }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
+
+// ============ مساعدات العرض ============
+function showConfirmModal(title, message, action, data = '') {
+    const modal = document.getElementById('confirmModal');
+    if (!modal) return;
+    
+    modal.dataset.action = action;
+    modal.dataset.data = data;
+    
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmIcon = document.getElementById('confirmIcon');
+    const confirmYes = document.getElementById('confirmYes');
+    
+    if (confirmTitle) confirmTitle.textContent = title;
+    if (confirmMessage) confirmMessage.textContent = message;
+    
+    if (confirmIcon) {
+        if (action.includes('delete') || action.includes('reset')) {
+            confirmIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            confirmIcon.style.color = 'var(--danger)';
+            if (confirmYes) confirmYes.className = 'btn-del';
+        } else {
+            confirmIcon.innerHTML = '<i class="fas fa-question-circle"></i>';
+            confirmIcon.style.color = 'var(--warning)';
+            if (confirmYes) confirmYes.className = 'btn-add';
+        }
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function hideConfirmModal() {
+    const modal = document.getElementById('confirmModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.style.background = {
+        'success': 'var(--success)',
+        'error': 'var(--danger)',
+        'warning': 'var(--warning)',
+        'info': 'var(--primary)'
+    }[type] || 'var(--primary)';
+    
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function formatDateEnglish(dateStr) {
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-GB', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+// ============ تعريض الدوال للنطاق العام ============
+window.switchTab = switchTab;
+window.filterOffers = filterOffers;
+window.getCategoryName = getCategoryName;
+window.deleteOfferHandler = deleteOfferHandler;
+window.toggleOfferStatus = toggleOfferStatus;
+window.exportData = exportData;
+window.exportAnalytics = exportAnalytics;
+window.resetVisits = resetVisits;
+window.updateQRCode = updateQRCode;
+window.addNewUser = addNewUser;
+window.backupData = backupData;
+window.clearCache = clearCache;
+window.showResetConfirm = showResetConfirm;
+window.logout = logout;
+window.loadInstallStats = loadInstallStats;
+
+// ============ تهيئة التطبيق ============
+document.addEventListener('DOMContentLoaded', initAdmin);
+
+// ============ منع فتح التبويبات المتعددة ============
+if (window.localStorage) {
+    const tabKey = 'firebase_admin_tab';
+    window.addEventListener('beforeunload', () => localStorage.removeItem(tabKey));
+    
+    if (localStorage.getItem(tabKey)) {
+        console.warn('⚠️ Admin panel already open in another tab');
+        setTimeout(() => {
+            alert('لوحة الإدارة مفتوحة بالفعل في تبويب آخر. يُرجى إغلاق التبويب الآخر أولاً.');
+            window.location.href = './index.html';
+        }, 100);
+    } else {
+        localStorage.setItem(tabKey, Date.now().toString());
+    }
+}
+</script>
+</body>
+</html>

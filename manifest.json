@@ -1,0 +1,31 @@
+{
+  "name": "Mustafa Auto Parts",
+  "short_name": "Mustafa",
+  "description": "متجر قطع غيار السيارات مصطفى - جودة عالية، أسعار منافسة، خدمة ممتازة لجميع أنواع السيارات",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a4f57",
+  "theme_color": "#0a4f57",
+  "categories": ["auto", "shopping", "business"],
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "./index.html",
+  "icons": [
+    {
+      "src": "./icon.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "اتصال سريع",
+      "short_name": "اتصال",
+      "url": "./index.html#tel",
+      "icons": [{ "src": "./icon.webp", "sizes": "96x96", "type": "image/webp" }]
+    }
+  ]
+}
