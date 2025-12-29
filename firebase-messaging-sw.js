@@ -21,8 +21,8 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification?.title || 'أجزاء السيارات مصطفى';
     const notificationOptions = {
         body: payload.notification?.body || payload.data?.body || 'رسالة جديدة',
-        icon: payload.notification?.icon || './icon.webp',
-        badge: './icon.webp',
+        icon: payload.notification?.icon || './icon.png',
+        badge: './icon.png',
         data: payload.data || {},
         tag: `bg_${Date.now()}`
     };
