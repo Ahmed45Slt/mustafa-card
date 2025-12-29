@@ -7,7 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 // مفتاح VAPID العام - استبدله بمفتاحك من Firebase Console
-const VAPID_KEY = "BElPmX7K3j4y9zQwVnT1rS8oU2iL5cA0dF6gH7jK8lM9nP1qR3sT4uV6wX8yZ";
+const VAPID_KEY = "O7v64-l_jI82Ki6WMPRkLApi0BsqeR2Srl8XmUbFlQA";
 
 /**
  * تهيئة إشعارات Push
@@ -119,8 +119,8 @@ function showPushNotification(payload) {
         
         const options = {
             body: notification?.body || data?.body || 'رسالة جديدة من مصطفى',
-            icon: notification?.icon || data?.icon || './icon.webp',
-            badge: './icon.webp',
+            icon: notification?.icon || data?.icon || './icon.png',
+            badge: './icon.png',
             tag: `mustafa_push_${Date.now()}`,
             data: data || {},
             requireInteraction: false,
@@ -229,8 +229,8 @@ export async function sendTestNotification() {
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('أجزاء السيارات مصطفى', {
                 body: 'هذا إشعار تجريبي من تطبيق قطع غيار مصطفى! 🚗',
-                icon: './icon.webp',
-                badge: './icon.webp'
+                icon: './icon.png',
+                badge: './icon.png'
             });
         }
         
