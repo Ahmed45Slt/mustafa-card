@@ -1,6 +1,6 @@
 {
-  "name": "Mustafa Auto Parts",
-  "short_name": "Mustafa",
+  "name": "Pièces Mustafa",
+  "short_name": "مصطفى",
   "description": "متجر قطع غيار السيارات مصطفى - جودة عالية، أسعار منافسة، خدمة ممتازة لجميع أنواع السيارات",
   "start_url": "./index.html",
   "scope": "./",
@@ -14,9 +14,9 @@
   "id": "./index.html",
   "icons": [
     {
-      "src": "./icon.webp",
+      "src": "./icon.png",
       "sizes": "512x512",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
@@ -25,7 +25,13 @@
       "name": "اتصال سريع",
       "short_name": "اتصال",
       "url": "./index.html#tel",
-      "icons": [{ "src": "./icon.webp", "sizes": "96x96", "type": "image/webp" }]
+      "icons": [
+        {
+          "src": "./icon.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
