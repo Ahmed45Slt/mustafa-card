@@ -1,4 +1,3 @@
-
 // firebase.js - النسخة المحسنة والمحدثة
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
@@ -17,7 +16,9 @@ import {
     setDoc,
     serverTimestamp,
     writeBatch,
-    enableIndexedDbPersistence
+    enableIndexedDbPersistence,
+    initializeFirestore,
+    persistentLocalCache
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
     getAuth, 
@@ -28,7 +29,7 @@ import {
     updateProfile
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// إعدادات Firebase
+// ============ إعدادات Firebase ============
 const firebaseConfig = {
     apiKey: "AIzaSyDgIpQl4LXSSqPrvfAd8SeaR3UbYKWvEmI",
     authDomain: "mustafa-card.firebaseapp.com",
@@ -38,16 +39,14 @@ const firebaseConfig = {
     appId: "1:1067081939938:web:4aed0222e81176180017bb"
 };
 
-// تهيئة Firebase
-import { initializeFirestore, persistentLocalCache } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+// ============ تهيئة Firebase ============
 const app = initializeApp(firebaseConfig);
 const db = initializeFirestore(app, {
-    localCache: persistentLocalCache(/*settings*/ {})
+    localCache: persistentLocalCache({})
 });
 const auth = getAuth(app);
 
-// تمكين التخزين المحلي (Offline Support)
+// ============ دعم العمل دون اتصال ============
 (async function enableOfflineSupport() {
     try {
         await enableIndexedDbPersistence(db);
@@ -60,6 +59,14 @@ const auth = getAuth(app);
         }
     }
 })();
+
+// ============ دالة لتنسيق الأرقام بالإنجليزية ============
+function formatNumber(number) {
+    if (typeof number !== 'number') {
+        number = parseInt(number) || 0;
+    }
+    return number.toLocaleString('en-GB');
+}
 
 // ============ مدير المصادقة ============
 class AuthManager {
@@ -161,7 +168,7 @@ export async function initFirebase() {
     return { db, auth };
 }
 
-// تحميل بيانات أولية في الكاش
+// ============ تحميل بيانات أولية في الكاش ============
 function loadInitialCache() {
     const initialData = {
         offers: [
@@ -271,7 +278,8 @@ function getLocalVisitCount() {
 function updateVisitDisplay(count) {
     const visitElement = document.getElementById("visits");
     if (visitElement) {
-        visitElement.textContent = count.toLocaleString();
+        // استخدام التنسيق الإنجليزي للأرقام
+        visitElement.textContent = formatNumber(count);
     }
     
     if (window.updateVisitCounter) {
@@ -437,6 +445,77 @@ export async function deleteOffer(offerId) {
     }
 }
 
+// ============ QR Code ============
+export async function getQRSettings() {
+    try {
+        const docRef = doc(db, "settings", "qr");
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            return data.url || "https://piecemustafa.com";
+        }
+        
+        // إعدادات افتراضية
+        const defaultSettings = {
+            url: "https://piecemustafa.com",
+            createdAt: serverTimestamp()
+        };
+        
+        await setDoc(docRef, defaultSettings);
+        return defaultSettings.url;
+        
+    } catch (error) {
+        console.error("❌ Error fetching QR settings:", error);
+        return "https://piecemustafa.com";
+    }
+}
+
+export async function loadQR() {
+    try {
+        const siteUrl = await getQRSettings();
+        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(siteUrl)}`;
+        
+        // حفظ في الكاش
+        localStorage.setItem('mustafa_qr_url', qrImageUrl);
+        
+        if (window.updateQRCode) {
+            window.updateQRCode(qrImageUrl);
+        }
+        
+        console.log("✅ QR Code Loaded for:", siteUrl);
+        return qrImageUrl;
+    } catch (error) {
+        console.error("❌ Error loading QR:", error);
+        
+        // استخدام QR افتراضي
+        const defaultQR = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecemustafa.com";
+        
+        if (window.updateQRCode) {
+            window.updateQRCode(defaultQR);
+        }
+        
+        return defaultQR;
+    }
+}
+
+export async function updateQRLink(newUrl) {
+    try {
+        const docRef = doc(db, "settings", "qr");
+        await setDoc(docRef, {
+            url: newUrl,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser?.email || 'admin'
+        }, { merge: true });
+        
+        console.log("✅ QR link updated:", newUrl);
+        return true;
+    } catch (error) {
+        console.error("❌ Error updating QR link:", error);
+        throw new Error('فشل في تحديث رابط QR');
+    }
+}
+
 // ============ الإحصائيات والتحليلات ============
 export async function getAnalyticsData(days = 7) {
     try {
@@ -564,77 +643,6 @@ async function getActiveOffersCount() {
     }
 }
 
-// ============ QR Code ============
-export async function getQRSettings() {
-    try {
-        const docRef = doc(db, "settings", "qr");
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            return data.url || "https://piecemustafa.com";
-        }
-        
-        // إعدادات افتراضية
-        const defaultSettings = {
-            url: "https://piecemustafa.com",
-            createdAt: serverTimestamp()
-        };
-        
-        await setDoc(docRef, defaultSettings);
-        return defaultSettings.url;
-        
-    } catch (error) {
-        console.error("❌ Error fetching QR settings:", error);
-        return "https://piecemustafa.com";
-    }
-}
-
-export async function loadQR() {
-    try {
-        const siteUrl = await getQRSettings();
-        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(siteUrl)}`;
-        
-        // حفظ في الكاش
-        localStorage.setItem('mustafa_qr_url', qrImageUrl);
-        
-        if (window.updateQRCode) {
-            window.updateQRCode(qrImageUrl);
-        }
-        
-        console.log("✅ QR Code Loaded for:", siteUrl);
-        return qrImageUrl;
-    } catch (error) {
-        console.error("❌ Error loading QR:", error);
-        
-        // استخدام QR افتراضي
-        const defaultQR = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecemustafa.com";
-        
-        if (window.updateQRCode) {
-            window.updateQRCode(defaultQR);
-        }
-        
-        return defaultQR;
-    }
-}
-
-export async function updateQRLink(newUrl) {
-    try {
-        const docRef = doc(db, "settings", "qr");
-        await setDoc(docRef, {
-            url: newUrl,
-            updatedAt: serverTimestamp(),
-            updatedBy: auth.currentUser?.email || 'admin'
-        }, { merge: true });
-        
-        console.log("✅ QR link updated:", newUrl);
-        return true;
-    } catch (error) {
-        console.error("❌ Error updating QR link:", error);
-        throw new Error('فشل في تحديث رابط QR');
-    }
-}
-
 // ============ تصدير البيانات ============
 export async function exportDataAsCSV(type = 'visits') {
     try {
@@ -671,49 +679,6 @@ export async function exportDataAsCSV(type = 'visits') {
     }
 }
 
-// ============ مزامنة البيانات ============
-async function scheduleSync(type, data) {
-    // تأخير المزامنة لتقليل الحمل
-    setTimeout(async () => {
-        try {
-            if (type === 'visits') {
-                await syncVisitData(data);
-            }
-        } catch (error) {
-            console.log(`⚠️ Could not sync ${type} data:`, error);
-        }
-    }, 5000); // 5 ثواني تأخير
-}
-
-async function syncVisitData(localData) {
-    try {
-        const statsRef = doc(db, "visits", "counter");
-        const firebaseSnap = await getDoc(statsRef);
-        const firebaseData = firebaseSnap.exists() ? firebaseSnap.data() : { count: 0, daily: {} };
-        
-        const updates = {
-            count: (firebaseData.count || 0) + (localData.total || 0),
-            lastSynced: serverTimestamp(),
-            syncCount: increment(1)
-        };
-        
-        // تحديث القيم اليومية
-        for (const [date, count] of Object.entries(localData.daily || {})) {
-            updates[`daily.${date}`] = increment(count || 0);
-        }
-        
-        await setDoc(statsRef, updates, { merge: true });
-        
-        console.log("✅ Local visits data synced to Firebase");
-        
-        // مسح البيانات المحلية بعد المزامنة الناجحة
-        localStorage.removeItem('mustafa_visits_local');
-        
-    } catch (error) {
-        console.log("⚠️ Could not sync visit data:", error);
-    }
-}
-
 // ============ دوال مساعدة ============
 class FirebaseUtils {
     static formatDate(date) {
@@ -733,6 +698,10 @@ class FirebaseUtils {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    static formatNumber(number) {
+        return formatNumber(number);
     }
 
     static clearCache() {
@@ -800,55 +769,50 @@ class FirebaseUtils {
     }
 }
 
-// ============ إحصائيات التثبيت ============
-export async function trackInstall() {
-    try {
-        const statsRef = doc(db, "stats", "installs");
-        await setDoc(statsRef, {
-            installs: increment(1),
-            lastInstall: serverTimestamp(),
-            installDate: new Date().toISOString(),
-            userAgent: navigator.userAgent.substring(0, 100),
-            platform: navigator.platform,
-            isPWA: window.matchMedia('(display-mode: standalone)').matches
-        }, { merge: true });
-        
-        console.log('✅ Install tracked in Firebase');
-        return true;
-    } catch (error) {
-        console.error("❌ Error tracking install:", error);
-        
-        // حفظ محلياً كبديل
+// ============ مزامنة البيانات ============
+async function scheduleSync(type, data) {
+    // تأخير المزامنة لتقليل الحمل
+    setTimeout(async () => {
         try {
-            const localInstalls = parseInt(localStorage.getItem('mustafa_local_installs') || '0');
-            localStorage.setItem('mustafa_local_installs', (localInstalls + 1).toString());
-            console.log('✅ Install saved locally');
-        } catch (e) {
-            console.log('⚠️ Could not save install stats');
+            if (type === 'visits') {
+                await syncVisitData(data);
+            }
+        } catch (error) {
+            console.log(`⚠️ Could not sync ${type} data:`, error);
+        }
+    }, 5000); // 5 ثواني تأخير
+}
+
+async function syncVisitData(localData) {
+    try {
+        const statsRef = doc(db, "visits", "counter");
+        const firebaseSnap = await getDoc(statsRef);
+        const firebaseData = firebaseSnap.exists() ? firebaseSnap.data() : { count: 0, daily: {} };
+        
+        const updates = {
+            count: (firebaseData.count || 0) + (localData.total || 0),
+            lastSynced: serverTimestamp(),
+            syncCount: increment(1)
+        };
+        
+        // تحديث القيم اليومية
+        for (const [date, count] of Object.entries(localData.daily || {})) {
+            updates[`daily.${date}`] = increment(count || 0);
         }
         
-        return false;
+        await setDoc(statsRef, updates, { merge: true });
+        
+        console.log("✅ Local visits data synced to Firebase");
+        
+        // مسح البيانات المحلية بعد المزامنة الناجحة
+        localStorage.removeItem('mustafa_visits_local');
+        
+    } catch (error) {
+        console.log("⚠️ Could not sync visit data:", error);
     }
 }
 
-// ============ التصدير النهائي ============
-export { 
-    db, 
-    auth, 
-    AuthManager, 
-    FirebaseUtils,
-    getDocs,
-    collection,
-    doc,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    serverTimestamp,
-    increment,
-    writeBatch
-};
 // ============ إحصائيات التثبيت ============
-
 /**
  * تتبع تثبيت التطبيق
  */
@@ -1063,3 +1027,43 @@ export async function syncLocalInstalls() {
         console.log('⚠️ Could not sync local installs:', error);
     }
 }
+// دالة لتسجيل التثبيت
+export async function incrementInstall(deviceType = 'mobile') {
+    try {
+        const newInstallRef = doc(collection(db, "installs"));
+        await setDoc(newInstallRef, {
+            timestamp: new Date(),
+            device: deviceType,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            createdAt: new Date().toISOString(),
+            source: 'pwa'
+        });
+        
+        console.log(`✅ Install recorded for ${deviceType}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Error recording install:', error);
+        return false;
+    }
+}
+
+// ============ التصدير النهائي ============
+export { 
+    db, 
+    auth, 
+    AuthManager, 
+    FirebaseUtils,
+    getDocs,
+    collection,
+    doc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    serverTimestamp,
+    increment,
+    writeBatch
+};
+
+// دالة مساعدة لتنسيق الأرقام
+export { formatNumber };
