@@ -113,7 +113,7 @@
             font-size: 1.2rem;
         }
 
-        /* إحصائيات التثبيت - تم دمج الأنماط المكررة */
+        /* إحصائيات التثبيت */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -394,6 +394,72 @@
             width: var(--desktop-percent, 50%);
         }
 
+        /* تحسينات توزيع الأجهزة */
+        .device-distribution {
+            margin-top: 15px;
+        }
+        
+        .device-distribution .device-bar {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 15px;
+        }
+        
+        .device-distribution .device-label {
+            width: 80px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        .device-distribution .device-count {
+            position: static;
+            width: 40px;
+            flex-shrink: 0;
+            text-align: left;
+        }
+        
+        .device-distribution .device-progress {
+            flex: 1;
+            margin-top: 0;
+        }
+
+        /* أزرار الاختبار */
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        .test-btn-mobile {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .test-btn-desktop {
+            background: #2196F3;
+            color: white;
+        }
+
         .modal {
             position: fixed;
             top: 0;
@@ -594,8 +660,22 @@
                 text-align: right;
             }
             
-            .device-label {
-                width: 60px;
+            .device-distribution .device-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .device-distribution .device-label {
+                width: auto;
+            }
+            
+            .device-distribution .device-progress {
+                width: 100%;
+            }
+            
+            .test-buttons {
+                flex-direction: column;
             }
         }
         
@@ -804,7 +884,7 @@
             </div>
         </div>
 
-        <!-- قسم إحصائيات التثبيت - تم دمجه في تبويب التحليلات -->
+        <!-- قسم إحصائيات التثبيت -->
         <div class="card">
             <h3><i class="fas fa-download"></i> إحصائيات التثبيت</h3>
             
@@ -830,10 +910,10 @@
                 </div>
             </div>
             
-            <!-- توزيع الأجهزة -->
+            <!-- توزيع الأجهزة مع تحسينات التنسيق -->
             <div class="device-stats">
                 <h4><i class="fas fa-mobile-alt"></i> توزيع الأجهزة</h4>
-                <div class="device-bars">
+                <div class="device-distribution">
                     <div class="device-bar mobile">
                         <span class="device-label">هاتف</span>
                         <span class="device-count" id="mobileCount">0</span>
@@ -857,6 +937,16 @@
             <button onclick="loadInstallStats()" class="btn-refresh">
                 <i class="fas fa-sync-alt"></i> تحديث البيانات
             </button>
+            
+            <!-- أزرار الاختبار -->
+            <div class="test-buttons">
+                <button class="test-btn test-btn-mobile" onclick="testMobileInstall()">
+                    <i class="fas fa-mobile-alt"></i> اختبار تثبيت هاتف
+                </button>
+                <button class="test-btn test-btn-desktop" onclick="testDesktopInstall()">
+                    <i class="fas fa-desktop"></i> اختبار تثبيت كمبيوتر
+                </button>
+            </div>
         </div>
     </div>
 
@@ -996,8 +1086,15 @@ let analyticsChart = null;
 let installChart = null;
 let offersUnsubscribe = null;
 let visitsUnsubscribe = null;
+let installsUnsubscribe = null;
 let currentFilter = { category: 'all', status: 'active' };
 let allOffers = [];
+let installStats = {
+    total: 0,
+    today: 0,
+    daily: [],
+    devices: { mobile: 0, desktop: 0 }
+};
 
 // ============ دالة ذكية لإصلاح بيانات الزيارات ============
 async function smartFixVisitsData() {
@@ -1100,7 +1197,7 @@ async function smartFixVisitsData() {
     }
 }
 
-// ============ تحميل بيانات الزيارات (بسيط وفعال) ============
+// ============ تحميل بيانات الزيارات ============
 async function loadVisits() {
     console.log('🔄 [Visits] Loading visits data...');
     
@@ -1323,6 +1420,9 @@ async function initAdmin() {
                 await loadData();
                 setupCharts();
                 
+                // إعداد مستمع التثبيتات في الوقت الحقيقي
+                setupRealtimeInstallListener();
+                
                 console.log('✅ [Init] Admin panel initialized successfully');
             } else {
                 showLoginUI();
@@ -1332,7 +1432,9 @@ async function initAdmin() {
         // تهيئة واجهة المستخدم
         setupEventListeners();
         updateSystemInfo();
-        setupInstallStats();
+        
+        // تحميل إحصائيات التثبيت
+        setTimeout(() => loadInstallStats(), 1000);
         
     } catch (error) {
         console.error('❌ [Init] Error:', error);
@@ -1353,6 +1455,285 @@ async function loadData() {
         console.error('❌ [Load Data] Error:', error);
         showToast('خطأ في تحميل البيانات', 'error');
     }
+}
+
+// ============ إحصائيات التثبيت - الاتصال بـ Firebase الفعلي ============
+async function loadInstallStats() {
+    try {
+        console.log('🔄 [Install Stats] Loading install statistics...');
+        
+        // 1. الحصول على بيانات التثبيتات من Firebase
+        const installsRef = collection(db, "installs");
+        const q = query(installsRef, orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
+        
+        // 2. معالجة البيانات
+        const today = new Date().toISOString().split('T')[0];
+        const todayStart = new Date(today);
+        const todayEnd = new Date(today);
+        todayEnd.setHours(23, 59, 59, 999);
+        
+        let totalInstalls = 0;
+        let todayInstalls = 0;
+        let mobileCount = 0;
+        let desktopCount = 0;
+        let lastInstall = null;
+        const dailyData = {};
+        
+        // 3. تجميع البيانات
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            totalInstalls++;
+            
+            // التحقق إذا كان التثبيت اليوم
+            const installDate = data.timestamp?.toDate() || new Date();
+            const installDateStr = installDate.toISOString().split('T')[0];
+            
+            if (installDateStr === today) {
+                todayInstalls++;
+            }
+            
+            // جمع حسب نوع الجهاز
+            const device = data.device || 'unknown';
+            if (device === 'mobile') mobileCount++;
+            else if (device === 'desktop') desktopCount++;
+            
+            // تحديث آخر تثبيت
+            if (!lastInstall || installDate > lastInstall) {
+                lastInstall = installDate;
+            }
+            
+            // جمع البيانات اليومية
+            if (dailyData[installDateStr]) {
+                dailyData[installDateStr]++;
+            } else {
+                dailyData[installDateStr] = 1;
+            }
+        });
+        
+        // 4. تحويل البيانات اليومية إلى مصفوفة للرسم البياني
+        const last7Days = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            last7Days.push({
+                date: dateStr,
+                count: dailyData[dateStr] || 0
+            });
+        }
+        
+        // 5. تحديث الواجهة
+        const totalInstallsEl = document.getElementById('totalInstalls');
+        const todayInstallsEl = document.getElementById('todayInstalls');
+        const installRateEl = document.getElementById('installRate');
+        const lastInstallEl = document.getElementById('lastInstall');
+        const mobileCountEl = document.getElementById('mobileCount');
+        const desktopCountEl = document.getElementById('desktopCount');
+        const mobileProgressEl = document.getElementById('mobileProgress');
+        const desktopProgressEl = document.getElementById('desktopProgress');
+        
+        // تحديث القيم
+        if (totalInstallsEl) totalInstallsEl.textContent = totalInstalls.toLocaleString();
+        if (todayInstallsEl) todayInstallsEl.textContent = todayInstalls.toLocaleString();
+        
+        // حساب معدل التحويل
+        const totalVisits = parseInt(document.getElementById('totalVisits')?.textContent?.replace(/,/g, '') || 1);
+        const installRate = totalVisits > 0 ? ((totalInstalls / totalVisits) * 100).toFixed(1) : 0;
+        if (installRateEl) installRateEl.textContent = installRate + '%';
+        
+        // تحديث آخر تثبيت
+        if (lastInstall && lastInstallEl) {
+            lastInstallEl.textContent = lastInstall.toLocaleDateString('en-GB');
+        } else if (lastInstallEl) {
+            lastInstallEl.textContent = '--';
+        }
+        
+        // تحديث أرقام الأجهزة
+        if (mobileCountEl) mobileCountEl.textContent = mobileCount;
+        if (desktopCountEl) desktopCountEl.textContent = desktopCount;
+        
+        // حساب النسب المئوية
+        const totalDevices = mobileCount + desktopCount || 1;
+        const mobilePercent = ((mobileCount / totalDevices) * 100).toFixed(0);
+        const desktopPercent = ((desktopCount / totalDevices) * 100).toFixed(0);
+        
+        if (mobileProgressEl) {
+            mobileProgressEl.style.setProperty('--mobile-percent', mobilePercent + '%');
+        }
+        if (desktopProgressEl) {
+            desktopProgressEl.style.setProperty('--desktop-percent', desktopPercent + '%');
+        }
+        
+        // 6. تحديث الرسم البياني
+        updateInstallChart(last7Days);
+        
+        console.log('✅ [Install Stats] Loaded successfully:', {
+            total: totalInstalls,
+            today: todayInstalls,
+            devices: { mobile: mobileCount, desktop: desktopCount }
+        });
+        
+    } catch (error) {
+        console.error('❌ [Install Stats] Error loading install statistics:', error);
+        
+        // عرض رسالة خطأ في الواجهة
+        showToast('خطأ في تحميل إحصائيات التثبيت', 'error');
+        
+        // عرض قيم صفرية مؤقتة
+        document.getElementById('totalInstalls').textContent = '0';
+        document.getElementById('todayInstalls').textContent = '0';
+        document.getElementById('mobileCount').textContent = '0';
+        document.getElementById('desktopCount').textContent = '0';
+    }
+}
+
+// ============ دالة لزيادة عداد التثبيت ============
+async function incrementInstall(deviceType = 'mobile') {
+    try {
+        console.log(`📱 [Install] Recording new ${deviceType} install...`);
+        
+        // 1. إضافة وثيقة جديدة في مجموعة installs
+        const newInstallRef = doc(collection(db, "installs"));
+        await setDoc(newInstallRef, {
+            timestamp: new Date(),
+            device: deviceType,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            createdAt: new Date().toISOString()
+        });
+        
+        // 2. تحديث العداد الإجمالي (اختياري - للسرعة)
+        const counterRef = doc(db, "stats", "installs_counter");
+        const counterSnap = await getDoc(counterRef);
+        
+        if (counterSnap.exists()) {
+            const currentCount = counterSnap.data().count || 0;
+            await setDoc(counterRef, {
+                count: currentCount + 1,
+                lastUpdated: new Date().toISOString(),
+                [deviceType]: (counterSnap.data()[deviceType] || 0) + 1
+            }, { merge: true });
+        } else {
+            await setDoc(counterRef, {
+                count: 1,
+                [deviceType]: 1,
+                created: new Date().toISOString(),
+                lastUpdated: new Date().toISOString()
+            });
+        }
+        
+        console.log('✅ [Install] Install recorded successfully');
+        
+        // 3. تحديث الواجهة في الوقت الحقيقي
+        setTimeout(() => loadInstallStats(), 500);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('❌ [Install] Error recording install:', error);
+        return false;
+    }
+}
+
+// ============ استماع في الوقت الحقيقي للتثبيتات ============
+function setupRealtimeInstallListener() {
+    try {
+        const installsRef = collection(db, "installs");
+        const q = query(installsRef, orderBy("timestamp", "desc"));
+        
+        installsUnsubscribe = onSnapshot(q, (snapshot) => {
+            console.log('🔄 [Realtime] Install data updated');
+            loadInstallStats(); // تحديث الإحصائيات تلقائيًا
+        }, (error) => {
+            console.error('❌ [Realtime] Install listener error:', error);
+        });
+        
+        console.log('👂 [Realtime] Install listener started');
+    } catch (error) {
+        console.error('❌ [Realtime] Error setting up listener:', error);
+    }
+}
+
+// ============ دوال اختبارية (للتجربة فقط) ============
+async function testMobileInstall() {
+    try {
+        const success = await incrementInstall('mobile');
+        if (success) {
+            showToast('تم تسجيل تثبيت هاتف تجريبي!', 'success');
+        } else {
+            showToast('خطأ في تسجيل التثبيت', 'error');
+        }
+    } catch (error) {
+        console.error('❌ [Test] Error:', error);
+        showToast('خطأ في الاختبار', 'error');
+    }
+}
+
+async function testDesktopInstall() {
+    try {
+        const success = await incrementInstall('desktop');
+        if (success) {
+            showToast('تم تسجيل تثبيت كمبيوتر تجريبي!', 'success');
+        } else {
+            showToast('خطأ في تسجيل التثبيت', 'error');
+        }
+    } catch (error) {
+        console.error('❌ [Test] Error:', error);
+        showToast('خطأ في الاختبار', 'error');
+    }
+}
+
+function updateInstallChart(dailyData) {
+    const ctx = document.getElementById('installChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    if (installChart) installChart.destroy();
+    
+    // ترتيب البيانات من الأقدم إلى الأحدث
+    const sortedData = [...dailyData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    const labels = sortedData.map(d => {
+        const date = new Date(d.date);
+        return date.toLocaleDateString('ar-SA', { weekday: 'short' });
+    });
+    
+    const data = sortedData.map(d => d.count);
+    
+    installChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'عدد التثبيتات',
+                data: data,
+                borderColor: '#00a896',
+                backgroundColor: 'rgba(0, 168, 150, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { font: { family: 'Tajawal' } }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { 
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : '';
+                        }
+                    } 
+                }
+            }
+        }
+    });
 }
 
 // ============ بقية الدوال (مع التحقق من null) ============
@@ -2006,107 +2387,6 @@ function updateConnectionStatus() {
     }
 }
 
-function setupInstallStats() {
-    if (typeof Chart !== 'undefined') {
-        setTimeout(() => loadInstallStats(), 1000);
-    } else {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-        script.onload = () => setTimeout(() => loadInstallStats(), 1000);
-        document.head.appendChild(script);
-    }
-    setInterval(loadInstallStats, 60000);
-}
-
-async function loadInstallStats() {
-    try {
-        const { getInstallStats } = await import('./firebase.js');
-        const stats = await getInstallStats(7);
-        
-        const totalInstallsEl = document.getElementById('totalInstalls');
-        const todayInstallsEl = document.getElementById('todayInstalls');
-        const installRateEl = document.getElementById('installRate');
-        const lastInstallEl = document.getElementById('lastInstall');
-        const mobileCountEl = document.getElementById('mobileCount');
-        const desktopCountEl = document.getElementById('desktopCount');
-        const mobileProgressEl = document.getElementById('mobileProgress');
-        const desktopProgressEl = document.getElementById('desktopProgress');
-        
-        if (totalInstallsEl) totalInstallsEl.textContent = stats.total.toLocaleString();
-        
-        const today = new Date().toISOString().split('T')[0];
-        const todayData = stats.daily.find(d => d.date === today);
-        if (todayInstallsEl) todayInstallsEl.textContent = todayData ? todayData.count : 0;
-        
-        const { getAnalyticsData } = await import('./firebase.js');
-        const analytics = await getAnalyticsData(7);
-        const totalVisits = analytics.totalVisits || 1;
-        const installRate = ((stats.total / totalVisits) * 100).toFixed(1);
-        if (installRateEl) installRateEl.textContent = installRate + '%';
-        
-        if (stats.lastInstall && lastInstallEl) {
-            const lastDate = new Date(stats.lastInstall);
-            lastInstallEl.textContent = lastDate.toLocaleDateString('en-GB');
-        }
-        
-        if (mobileCountEl) mobileCountEl.textContent = stats.devices.mobile || 0;
-        if (desktopCountEl) desktopCountEl.textContent = stats.devices.desktop || 0;
-        
-        const totalDevices = stats.devices.mobile + stats.devices.desktop || 1;
-        const mobilePercent = ((stats.devices.mobile / totalDevices) * 100).toFixed(0);
-        const desktopPercent = ((stats.devices.desktop / totalDevices) * 100).toFixed(0);
-        
-        if (mobileProgressEl) mobileProgressEl.style.setProperty('--mobile-percent', mobilePercent + '%');
-        if (desktopProgressEl) desktopProgressEl.style.setProperty('--desktop-percent', desktopPercent + '%');
-        
-        updateInstallChart(stats.daily);
-        
-    } catch (error) {
-        console.error('❌ [Install Stats] Error:', error);
-    }
-}
-
-function updateInstallChart(dailyData) {
-    const ctx = document.getElementById('installChart')?.getContext('2d');
-    if (!ctx) return;
-    
-    if (installChart) installChart.destroy();
-    
-    const labels = dailyData.map(d => {
-        const date = new Date(d.date);
-        return date.toLocaleDateString('ar-SA', { weekday: 'short' });
-    }).reverse();
-    
-    const data = dailyData.map(d => d.count).reverse();
-    
-    installChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'عدد التثبيتات',
-                data: data,
-                borderColor: '#00a896',
-                backgroundColor: 'rgba(0, 168, 150, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: { font: { family: 'Tajawal' } }
-                }
-            },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
-            }
-        }
-    });
-}
-
 // ============ مساعدات العرض ============
 function showConfirmModal(title, message, action, data = '') {
     const modal = document.getElementById('confirmModal');
@@ -2188,6 +2468,8 @@ window.clearCache = clearCache;
 window.showResetConfirm = showResetConfirm;
 window.logout = logout;
 window.loadInstallStats = loadInstallStats;
+window.testMobileInstall = testMobileInstall;
+window.testDesktopInstall = testDesktopInstall;
 
 // ============ تهيئة التطبيق ============
 document.addEventListener('DOMContentLoaded', initAdmin);
