@@ -15,7 +15,7 @@
     <meta property="og:url" content="https://piecesmustafa.netlify.app/">
     <meta property="og:title" content="PIÈCES MUSTAFA - قطع غيار السيارات">
     <meta property="og:description" content="جودة عالية، أسعار منافسة، خدمة ممتازة لجميع أنواع السيارات">
-    <meta property="og:image" content="https://piecesmustafa.netlify.app/icon.webp">
+    <meta property="og:image" content="https://piecesmustafa.netlify.app/icon.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     
@@ -24,14 +24,14 @@
     <meta name="twitter:url" content="https://piecesmustafa.netlify.app/">
     <meta name="twitter:title" content="PIÈCES MUSTAFA - قطع غيار السيارات">
     <meta name="twitter:description" content="قطع غيار السيارات بجودة وأمان في طنجة، المغرب">
-    <meta name="twitter:image" content="https://piecesmustafa.netlify.app/icon.webp">
+    <meta name="twitter:image" content="https://piecesmustafa.netlify.app/icon.png">
     
     <!-- PWA -->
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
     <meta name="theme-color" content="#0a4f57" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#083a40" media="(prefers-color-scheme: dark)">
-    <link rel="icon" href="icon.webp" type="image/webp">
-    <link rel="apple-touch-icon" href="icon.webp">
+    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon.png">
     
     <!-- Resource Preconnections -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -65,7 +65,7 @@
         },
         "openingHours": "Mo-Su 09:00-20:00",
         "priceRange": "$$",
-        "image": "icon.webp",
+        "image": "icon.png",
         "sameAs": [
             "https://www.facebook.com/profile.php?id=61562492412368",
             "https://www.instagram.com/piecemustafa",
@@ -170,6 +170,15 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
+            transition: opacity 0.3s ease;
+        }
+
+        .logo img.loaded {
+            opacity: 1;
+        }
+
+        .logo img:not(.loaded) {
+            opacity: 0;
         }
 
         .logo-badge {
@@ -362,11 +371,19 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(10, 79, 87, 0.3);
             z-index: 999;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
             font-family: 'Tajawal', sans-serif;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .btn-install.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .btn-install:hover {
@@ -659,45 +676,6 @@
             border: none;
         }
 
-        /* زر الإدارة */
-        .admin-section {
-            position: fixed;
-            bottom: 20px;
-            inset-inline-end: 20px;
-            z-index: 9999;
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.9);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-
-        .admin-section.show {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
-
-        #adminBtn {
-            padding: 7px 11px;
-            background: linear-gradient(135deg, #ff9900 0%, #e68900 100%);
-            color: var(--white);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 16px;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(255, 153, 0, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #adminBtn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 153, 0, 0.4);
-        }
-
         /* سياسة الخصوصية */
         .privacy-link {
             text-align: center;
@@ -714,29 +692,6 @@
 
         .privacy-link a:hover {
             text-decoration: underline;
-        }
-
-        /* نافذة تسجيل الدخول */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
         }
 
         /* رسائل التنبيه */
@@ -761,6 +716,27 @@
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
+        }
+
+        /* مؤشر الاتصال */
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .connection-indicator.online {
+            background: rgba(46, 204, 113, 0.9);
         }
 
         /* شاشة التحميل */
@@ -832,6 +808,11 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
 
         /* التحسينات للهواتف */
@@ -906,7 +887,7 @@
         <header class="header">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="icon.webp" alt="Mustafa Auto Parts Logo" loading="lazy" width="150" height="150">
+                    <img src="icon.png" alt="Mustafa Auto Parts Logo" loading="lazy" width="150" height="150">
                 </div>
                 <div class="logo-badge">
                     <i class="fas fa-check"></i>
@@ -976,7 +957,7 @@
         </nav>
 
         <!-- زر تثبيت التطبيق -->
-        <button class="btn-install" id="installBtn" style="display: none;" aria-label="تثبيت التطبيق">
+        <button class="btn-install" id="installBtn" aria-label="تثبيت التطبيق">
             <i class="fas fa-download"></i> تثبيت التطبيق
         </button>
 
@@ -1024,7 +1005,7 @@
                     <i class="fas fa-phone"></i>
                     <div class="info-content">
                         <h3>الهاتف</h3>
-                        <p id="phone">+212 668 343 724</p>
+                        <p id="phone" dir="ltr">+212 668 343 724</p>
                     </div>
                 </article>
             </section>
@@ -1036,7 +1017,9 @@
                     <img id="qr" src="" alt="QR Code لموقع مصطفى لقطع غيار السيارات" 
                          onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecesmustafa.netlify.app/'">
                 </div>
-                <p class="qr-description">امسح الكود لزيارة موقعنا مباشرة</p>
+                <p style="color: #666; font-size: 0.95rem; margin-top: 10px; opacity: 0.9;">
+                    امسح الكود لزيارة موقعنا مباشرة
+                </p>
             </aside>
 
             <!-- الخريطة -->
@@ -1116,384 +1099,426 @@
                 <a href="./privacy.html" aria-label="قراءة سياسة الخصوصية">سياسة الخصوصية</a>
             </footer>
         </main>
-
-        <!-- زر الإدارة -->
-        <div class="admin-section">
-            <button id="adminBtn" aria-label="دخول لوحة التحكم">
-                <i class="fas fa-cogs"></i> دخول الإدارة
-            </button>
-        </div>
-    </div>
-
-    <!-- نافذة تسجيل الدخول -->
-    <div class="modal" id="loginModal" role="dialog" aria-labelledby="loginTitle" aria-hidden="true" style="display: none;">
-        <div class="modal-content">
-            <h3 id="loginTitle" style="color:var(--bg); margin-bottom:20px;">تسجيل الدخول</h3>
-            <input type="password" 
-                   id="adminPass" 
-                   placeholder="كلمة المرور" 
-                   aria-label="كلمة مرور المدير"
-                   style="width:100%; padding:12px; border:2px solid #ddd; border-radius:10px; margin-bottom:15px; font-size:16px;">
-            <button id="loginBtn" 
-                    style="background:var(--bg); color:white; padding:12px 30px; border:none; border-radius:10px; cursor:pointer; font-weight:bold; width:100%;">
-                دخول
-            </button>
-            <button id="closeModal" 
-                    style="background:#ccc; color:#333; padding:12px 30px; border:none; border-radius:10px; cursor:pointer; margin-top:10px; width:100%;">
-                إلغاء
-            </button>
-        </div>
     </div>
 
     <!-- رسالة التنبيه -->
     <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+    
+    <!-- مؤشر حالة الاتصال -->
+    <div id="connectionIndicator" class="connection-indicator">
+        <i class="fas fa-wifi-slash"></i>
+        <span>دون اتصال</span>
+    </div>
 
     <script type="module">
-import { initFirebase, incrementVisit, loadOffers, loadQR, getAnalyticsData } from './firebase.js';
-
-// ============ المتغيرات العامة ============
-const translations = {
-    ar: {
-        title: "أجزاء السيارات مصطفى",
-        slogan: "مع مصطفى اختر بكل ثقة قطع غيار لسيارتكم التي تضمن لك الأمان والجودة",
-        address: "شارع العدالة لعزيب حاج قدور إقامة البستان 1، طنجة، المغرب",
-        workTime: "مفتوح من 09:00 إلى 20:00 - جميع أيام الأسبوع",
-        phone: "+212 668 343 724",
-        save: "حفظ جهة الاتصال",
-        call: "اتصال هاتفي",
-        chat: "محادثة واتساب",
-        mail: "البريد الإلكتروني",
-        visits: "إجمالي عدد الزيارات"
-    },
-    en: {
-        title: "Mustafa Auto Parts",
-        slogan: "Trust Mustafa for high-quality auto parts ensuring safety and quality.",
-        address: "Al Adala St, Azib Haj Kaddour, Tangier, Morocco",
-        workTime: "Open from 09:00 to 20:00 - All week",
-        phone: "+212 668 343 724",
-        save: "Save Contact",
-        call: "Phone Call",
-        chat: "WhatsApp Chat",
-        mail: "Email",
-        visits: "Total Visits"
-    },
-    fr: {
-        title: "Pièces Auto Mustafa",
-        slogan: "Choisissez des pièces fiables garantissant sécurité et qualité.",
-        address: "Rue Al Adala, Azib Haj Kaddour, Tanger, Maroc",
-        workTime: "Ouvert de 09h00 à 20h00 - Tous les jours",
-        phone: "+212 668 343 724",
-        save: "Enregistrer le contact",
-        call: "Appel téléphonique",
-        chat: "Chat WhatsApp",
-        mail: "E-mail",
-        visits: "Visites totales"
-    },
-    es: {
-        title: "Piezas Auto Mustafa",
-        slogan: "Confíe en Mustafa para repuestos de haute qualité et sécurité.",
-        address: "Calle Al Adala, Azib Haj Kaddour, Tánger, Marruecos",
-        workTime: "Abierto de 09:00 a 20:00 - Toda la semana",
-        phone: "+212 668 343 724",
-        save: "Guardar contacto",
-        call: "Llamada telefónica",
-        chat: "Chat de WhatsApp",
-        mail: "Correo electrónico",
-        visits: "Visitas totales"
-    }
-};
-
-let currentSlide = 0;
-let offersData = [];
-let sliderInterval = null;
-let deferredPrompt = null;
-let isOnline = navigator.onLine;
-
-// ============ تهيئة الصفحة ============
-// عند DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ DOM loaded');
-    
-    // إصلاح سريع للعرض
-    document.body.style.height = '100vh';
-    document.body.style.overflow = 'auto';
-    document.querySelector('.container').style.display = 'block';
-    document.body.style.display = 'block';
-    document.body.style.visibility = 'visible';
-    
-    // إضافة CSS إضافي لضمان العرض
-    const style = document.createElement('style');
-    style.textContent = `
-        body { 
-            display: block !important; 
-            visibility: visible !important; 
-            opacity: 1 !important; 
+        // ============ تهيئة الاستيرادات ============
+        let firebaseFunctions = null;
+        
+        // استيراد Firebase بشكل مشروط
+        async function loadFirebase() {
+            try {
+                const module = await import('./firebase.js');
+                firebaseFunctions = module;
+                console.log('✅ Firebase loaded successfully');
+                return module;
+            } catch (error) {
+                console.error('❌ Failed to load Firebase:', error);
+                // استخدام دوال افتراضية في حالة الفشل
+                firebaseFunctions = {
+                    initFirebase: () => Promise.resolve(),
+                    incrementVisit: () => Promise.resolve(),
+                    loadOffers: () => Promise.resolve([]),
+                    loadQR: () => Promise.resolve(),
+                    getAnalyticsData: () => Promise.resolve({}),
+                    incrementInstall: () => Promise.resolve()
+                };
+                return firebaseFunctions;
+            }
         }
-        .container { 
-            display: block !important; 
-            visibility: visible !important; 
-        }
-        .header, .content { 
-            opacity: 1 !important; 
-            transform: none !important; 
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // التحقق من عناصر DOM
-    console.log('Body height:', document.body.offsetHeight);
-    console.log('Container:', document.querySelector('.container'));
-    console.log('All elements:', document.querySelectorAll('*').length);
-    
-    // استعادة اللغة
-    restoreLanguage();
-    
-    // تهيئة ساعات العمل
-    updateWorkTimeStatus();
-    setInterval(updateWorkTimeStatus, 60000);
-    
-    // تأثيرات الظهور المتدرجة
-    const elements = document.querySelectorAll('.header, .quick-actions, .content');
-    elements.forEach((el, index) => {
-        el.style.animationDelay = `${index * 0.2}s`;
-    });
-    
-    // إضافة تأثيرات التفاعل
-    document.querySelectorAll('.action-btn, .social-icon').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            this.style.transform = 'scale(0.95)';
+
+        // ============ المتغيرات العامة ============
+        const translations = {
+            ar: {
+                title: "أجزاء السيارات مصطفى",
+                slogan: "مع مصطفى اختر بكل ثقة قطع غيار لسيارتكم التي تضمن لك الأمان والجودة",
+                address: "شارع العدالة لعزيب حاج قدور إقامة البستان 1، طنجة، المغرب",
+                workTime: "مفتوح من 09:00 إلى 20:00 - جميع أيام الأسبوع",
+                phone: "+212 668 343 724",
+                save: "حفظ جهة الاتصال",
+                call: "اتصال هاتفي",
+                chat: "محادثة واتساب",
+                mail: "البريد الإلكتروني",
+                visits: "إجمالي عدد الزيارات"
+            },
+            en: {
+                title: "Mustafa Auto Parts",
+                slogan: "Trust Mustafa for high-quality auto parts ensuring safety and quality.",
+                address: "Al Adala St, Azib Haj Kaddour, Tangier, Morocco",
+                workTime: "Open from 09:00 to 20:00 - All week",
+                phone: "+212 668 343 724",
+                save: "Save Contact",
+                call: "Phone Call",
+                chat: "WhatsApp Chat",
+                mail: "Email",
+                visits: "Total Visits"
+            },
+            fr: {
+                title: "Pièces Auto Mustafa",
+                slogan: "Choisissez des pièces fiables garantissant sécurité et qualité.",
+                address: "Rue Al Adala, Azib Haj Kaddour, Tanger, Maroc",
+                workTime: "Ouvert de 09h00 à 20h00 - Tous les jours",
+                phone: "+212 668 343 724",
+                save: "Enregistrer le contact",
+                call: "Appel téléphonique",
+                chat: "Chat WhatsApp",
+                mail: "E-mail",
+                visits: "Visites totales"
+            },
+            es: {
+                title: "Piezas Auto Mustafa",
+                slogan: "Confíe en Mustafa para repuestos de haute qualité et sécurité.",
+                address: "Calle Al Adala, Azib Haj Kaddour, Tánger, Marruecos",
+                workTime: "Abierto de 09:00 a 20:00 - Toda la semana",
+                phone: "+212 668 343 724",
+                save: "Guardar contacto",
+                call: "Llamada telefónica",
+                chat: "Chat de WhatsApp",
+                mail: "Correo electrónico",
+                visits: "Visitas totales"
+            }
+        };
+
+        let currentSlide = 0;
+        let offersData = [];
+        let sliderInterval = null;
+        let deferredPrompt = null;
+        let isOnline = navigator.onLine;
+
+        // ============ تهيئة الصفحة ============
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('✅ DOM loaded');
+            
+            // إصلاح سريع للعرض
+            document.body.style.height = '100vh';
+            document.body.style.overflow = 'auto';
+            
+            // تحميل Firebase
+            await loadFirebase();
+            
+            // استعادة اللغة
+            restoreLanguage();
+            
+            // تهيئة ساعات العمل
+            updateWorkTimeStatus();
+            setInterval(updateWorkTimeStatus, 60000);
+            
+            // تهيئة الصور
+            initializeImages();
+            
+            // إضافة تأثيرات التفاعل
+            document.querySelectorAll('.action-btn, .social-icon').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+            
+            // متابعة حالة الاتصال
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+            
+            // تحميل محسن للصور
+            initializeLazyLoading();
+            
+            // التحقق الأولي من حالة الاتصال
+            updateConnectionStatus();
+            
+            // تهيئة PWA
+            initializePWA();
+            
+            // تهيئة العروض الافتراضية
+            loadFallbackData();
+            
+            // تهيئة Firebase بعد تحميل الصفحة بالكامل
             setTimeout(() => {
-                this.style.transform = '';
-            }, 150);
+                initializeFirebase();
+            }, 500);
+            
+            // تهيئة زر حفظ جهة الاتصال
+            initializeSaveContact();
         });
-    });
-    
-    // متابعة حالة الاتصال
-    window.addEventListener('online', () => {
-        showToast("تم استعادة الاتصال بالإنترنت ✓", "success");
-        updateOnlineStatus();
-    });
-    
-    window.addEventListener('offline', () => {
-        showToast("فقدان الاتصال بالإنترنت ✗", "warning");
-        updateOnlineStatus();
-    });
-    
-    // تحميل محسن للصور
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src || img.src;
-                    imageObserver.unobserve(img);
+
+        // ============ تهيئة Firebase ============
+        async function initializeFirebase() {
+            try {
+                if (firebaseFunctions && firebaseFunctions.initFirebase) {
+                    await firebaseFunctions.initFirebase();
+                    await firebaseFunctions.incrementVisit();
+                    await firebaseFunctions.loadOffers();
+                    await firebaseFunctions.loadQR();
                 }
+            } catch (error) {
+                console.error('❌ Error initializing Firebase:', error);
+            }
+        }
+
+        // ============ تهيئة PWA ============
+        function initializePWA() {
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('✅ Service Worker registered:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.log('❌ Service Worker failed:', err);
+                    });
+            }
+
+            // Install Prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallButton();
             });
-        });
-        
-        document.querySelectorAll('img[loading="lazy"]').forEach(img => imageObserver.observe(img));
-    }
-    
-    // إعداد زر الإدارة
-    setupAdminButtonBehavior();
-    
-    // إضافة مؤشر الاتصال
-    addConnectionIndicator();
-    
-    // التحقق الأولي من حالة الاتصال
-    updateOnlineStatus();
-});
 
-// عند تحميل الصفحة بشكل كامل
-window.onload = function() {
-    console.log('✅ Page fully loaded');
-    
-    // التحقق من أن المحتوى مرئي
-    const checkVisibility = setInterval(() => {
-        const container = document.querySelector('.container');
-        if (container && container.offsetHeight > 0) {
-            console.log('✅ Content is visible');
-            clearInterval(checkVisibility);
+            // App Installed
+            window.addEventListener('appinstalled', (evt) => {
+                console.log('🎉 App installed successfully');
+                hideInstallButton();
+                trackInstallInFirebase();
+            });
+
+            // Check if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 Running in standalone mode');
+                hideInstallButton();
+            }
         }
-    }, 100);
-};
 
-// ============ Service Worker و PWA ============
-// تسجيل Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => {
-                console.log('✅ Service Worker registered:', reg);
-                reg.update();
-            })
-            .catch(err => console.log("❌ SW error:", err));
-    });
-}
-
-// إدارة زر تثبيت PWA
-const installBtn = document.getElementById('installBtn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    if (installBtn) {
-        installBtn.style.display = 'flex';
-        installBtn.style.animation = 'fadeInDown 0.5s ease';
-    }
-    
-    console.log('✅ PWA installation available');
-});
-
-if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        console.log(`User response to install prompt: ${outcome}`);
-        
-        if (outcome === 'accepted') {
-            deferredPrompt = null;
-            installBtn.style.display = 'none';
+        function showInstallButton() {
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) {
+                setTimeout(() => {
+                    installBtn.classList.add('show');
+                }, 1000);
+                
+                installBtn.addEventListener('click', handleInstallClick);
+            }
         }
-    });
-}
 
-window.addEventListener('appinstalled', async () => {
-    console.log('✅ PWA installed successfully!');
-    
-    // تتبع التثبيت
-    try {
-        const { trackPWAInstall } = await import('./firebase.js');
-        await trackPWAInstall();
-    } catch (error) {
-        console.log('⚠️ Could not track install:', error);
-    }
-    
-    if (installBtn) {
-        installBtn.style.display = 'none';
-    }
-    
-    deferredPrompt = null;
-    showToast('تم تثبيت التطبيق بنجاح! 🎉', 'success');
-});
+        function hideInstallButton() {
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) {
+                installBtn.classList.remove('show');
+            }
+        }
 
-// ============ الإشعارات ============
-// بعد استيراد firebase.js في index.html
-import { togglePushNotifications } from './push.js';
+        async function handleInstallClick() {
+            if (!deferredPrompt) {
+                showToast('تثبيت التطبيق غير متاح حالياً', 'warning');
+                return;
+            }
 
-// إضافة مستمع للأزرار
-document.addEventListener('DOMContentLoaded', () => {
-    // زر تفعيل/تعطيل الإشعارات
-    const pushBtn = document.getElementById('pushToggleBtn');
-    if (pushBtn) {
-        pushBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const enabled = await togglePushNotifications();
-            updatePushButtonText(enabled);
-        });
-        
-        // تحديث نص الزر
-        updatePushButtonText();
-    }
-});
+            try {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('✅ User accepted install');
+                    showToast('جاري تثبيت التطبيق...', 'success');
+                } else {
+                    console.log('❌ User declined install');
+                    showToast('تم إلغاء التثبيت', 'info');
+                }
+                
+                deferredPrompt = null;
+            } catch (error) {
+                console.error('❌ Install error:', error);
+                showToast('حدث خطأ أثناء التثبيت', 'error');
+            }
+        }
 
-// تحديث نص زر الإشعارات
-function updatePushButtonText(enabled = null) {
-    const btnText = document.getElementById('pushBtnText');
-    if (!btnText) return;
-    
-    const isEnabled = enabled !== null ? enabled : 
-                     Notification.permission === 'granted' && 
-                     localStorage.getItem('mustafa_fcm_token');
-    
-    btnText.textContent = isEnabled ? 'الإشعارات مفعلة' : 'تفعيل الإشعارات';
-    
-    const icon = document.querySelector('#pushToggleBtn i');
-    if (icon) {
-        icon.className = isEnabled ? 'fas fa-bell-slash' : 'fas fa-bell';
-    }
-}
+        // ============ دوال المساعدة ============
+        function updateConnectionStatus() {
+            const indicator = document.getElementById('connectionIndicator');
+            if (!indicator) return;
+            
+            isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                indicator.style.display = 'flex';
+                indicator.innerHTML = '<i class="fas fa-wifi"></i><span>متصل بالإنترنت</span>';
+                indicator.className = 'connection-indicator online';
+                
+                // محاولة مزامنة البيانات عند الاتصال
+                setTimeout(() => {
+                    if (firebaseFunctions && firebaseFunctions.loadOffers) {
+                        firebaseFunctions.loadOffers();
+                    }
+                }, 1000);
+                
+                // إخفاء المؤشر بعد 3 ثواني
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            } else {
+                indicator.style.display = 'flex';
+                indicator.innerHTML = '<i class="fas fa-wifi-slash"></i><span>دون اتصال</span>';
+                indicator.className = 'connection-indicator';
+            }
+        }
 
-// ============ الترجمة ============
-// تغيير اللغة مع حفظ التفضيل
-window.setLang = (lang) => {
-    const t = translations[lang];
-    if (!t) return;
-    
-    document.getElementById("title").textContent = t.title;
-    document.getElementById("slogan").textContent = t.slogan;
-    document.getElementById("address").textContent = t.address;
-    document.getElementById("work-time").textContent = t.workTime;
-    document.getElementById("phone").textContent = t.phone;
-    document.getElementById("btn-save").textContent = t.save;
-    document.getElementById("btn-call").textContent = t.call;
-    document.getElementById("btn-chat").textContent = t.chat;
-    document.getElementById("btn-mail").textContent = t.mail;
-    document.getElementById("txt-visits").textContent = t.visits;
-    
-    document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-    document.documentElement.lang = lang;
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    localStorage.setItem('preferredLang', lang);
-    
-    const langNames = {
-        'ar': 'العربية',
-        'en': 'الإنجليزية',
-        'fr': 'الفرنسية',
-        'es': 'الإسبانية'
-    };
-    showToast(`تم تغيير اللغة إلى ${langNames[lang]}`);
-};
+        function handleOnline() {
+            console.log('🌐 Online');
+            updateConnectionStatus();
+        }
 
-// استعادة اللغة المفضلة
-function restoreLanguage() {
-    const savedLang = localStorage.getItem('preferredLang') || 'ar';
-    const langBtn = document.querySelector(`.lang-btn[onclick*="${savedLang}"]`);
-    if (langBtn) {
-        langBtn.click();
-    }
-}
+        function handleOffline() {
+            console.log('⚠️ Offline');
+            updateConnectionStatus();
+        }
 
-// ============ وظائف المساعدة ============
-// نسخ النص إلى الحافظة
-function copyToClipboard(text) {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text)
-            .then(() => showToast("تم نسخ النص إلى الحافظة! 📋"))
-            .catch(err => {
-                console.error("Error copying text: ", err);
+        function initializeImages() {
+            const logoImg = document.querySelector('.logo img');
+            if (logoImg) {
+                logoImg.onload = () => {
+                    logoImg.classList.add('loaded');
+                };
+                
+                // Fallback إذا فشل التحميل
+                logoImg.onerror = () => {
+                    console.warn('⚠️ Logo failed to load');
+                    logoImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230a4f57" rx="50"/><text x="50" y="50" font-family="Arial" font-size="40" fill="white" text-anchor="middle" dy=".3em">MA</text></svg>';
+                    logoImg.classList.add('loaded');
+                };
+            }
+        }
+
+        function initializeLazyLoading() {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src || img.src;
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                    observer.observe(img);
+                });
+            }
+        }
+
+        // ============ الترجمة ============
+        window.setLang = function(lang) {
+            const t = translations[lang];
+            if (!t) {
+                console.error('❌ Language not found:', lang);
+                return;
+            }
+            
+            // تحديث النصوص
+            const elements = {
+                'title': document.getElementById("title"),
+                'slogan': document.getElementById("slogan"),
+                'address': document.getElementById("address"),
+                'work-time': document.getElementById("work-time"),
+                'phone': document.getElementById("phone"),
+                'btn-save': document.getElementById("btn-save"),
+                'btn-call': document.getElementById("btn-call"),
+                'btn-chat': document.getElementById("btn-chat"),
+                'btn-mail': document.getElementById("btn-mail"),
+                'txt-visits': document.getElementById("txt-visits")
+            };
+            
+            for (const [key, element] of Object.entries(elements)) {
+                if (element && t[key]) {
+                    element.textContent = t[key];
+                }
+            }
+            
+            // تحديث اتجاه النص
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+            
+            // تحديث أزرار اللغة
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // حفظ اللغة
+            localStorage.setItem('preferredLang', lang);
+            
+            // إظهار إشعار
+            const langNames = {
+                'ar': 'العربية',
+                'en': 'الإنجليزية',
+                'fr': 'الفرنسية',
+                'es': 'الإسبانية'
+            };
+            showToast(`تم تغيير اللغة إلى ${langNames[lang]}`, 'success');
+        };
+
+        function restoreLanguage() {
+            const savedLang = localStorage.getItem('preferredLang') || 'ar';
+            const langBtn = document.querySelector(`.lang-btn[onclick*="${savedLang}"]`);
+            if (langBtn) {
+                langBtn.click();
+            }
+        }
+
+        // ============ دوال متنوعة ============
+        window.copyToClipboard = function(text) {
+            if (!navigator.clipboard) {
                 fallbackCopy(text);
-            });
-    } else {
-        fallbackCopy(text);
-    }
-}
+                return;
+            }
+            
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showToast("تم نسخ النص إلى الحافظة! 📋", "success");
+                })
+                .catch(() => {
+                    fallbackCopy(text);
+                });
+        };
 
-// نسخ احتياطي للمتصفحات القديمة
-function fallbackCopy(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    showToast("تم النسخ!");
-}
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("تم النسخ إلى الحافظة", "success");
+            } catch (err) {
+                showToast("تعذر النسخ، حاول مرة أخرى", "error");
+            }
+            
+            document.body.removeChild(textArea);
+        }
 
-// حفظ جهة الاتصال كملف vCard
-document.getElementById("saveContactBtn").addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    const vcard = `BEGIN:VCARD
+        function initializeSaveContact() {
+            const saveContactBtn = document.getElementById("saveContactBtn");
+            if (saveContactBtn) {
+                saveContactBtn.addEventListener('click', saveContact);
+            }
+        }
+
+        function saveContact(e) {
+            e.preventDefault();
+            
+            const vcard = `BEGIN:VCARD
 VERSION:3.0
 FN:Mustafa Auto Parts
 N:Auto Parts;Mustafa;;;
@@ -1511,398 +1536,296 @@ X-SOCIALPROFILE;TYPE=tiktok:https://www.tiktok.com/@piecemustafa
 X-SOCIALPROFILE;TYPE=youtube:https://youtube.com/@piecemustafa
 REV:${new Date().toISOString()}
 END:VCARD`;
-    
-    const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "Mustafa_Auto_Parts.vcf");
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    showToast("تم حفظ جهة الاتصال بنجاح! 👤");
-});
-
-// عرض رسائل التنبيه
-function showToast(message, type = 'info') {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    
-    const colors = {
-        'success': '#4CAF50',
-        'error': '#ff4d4d',
-        'warning': '#ff9900',
-        'info': 'var(--accent)'
-    };
-    
-    toast.style.background = colors[type] || colors.info;
-    toast.classList.add("show");
-    
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 3000);
-}
-
-// ============ إدارة العروض ============
-window.loadOffersCallback = (offers) => {
-    offersData = offers;
-    const container = document.getElementById("offersContainer");
-    const dotsContainer = document.getElementById("sliderDots");
-    
-    if (offers.length === 0) {
-        container.innerHTML = `
-            <div class="offer-card">
-                <div class="offer-text">
-                    🎉 خصومات تصل إلى 30% على جميع قطع الغيار هذا الأسبوع!
-                    <br><small>استفسر الآن للحصول على أفضل الأسعار</small>
-                </div>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = '';
-    dotsContainer.innerHTML = '';
-    
-    offers.forEach((offer, index) => {
-        const slide = document.createElement("div");
-        slide.className = "offer-card";
-        slide.innerHTML = `
-            <div class="offer-text">
-                ${offer.text}
-                ${offer.expiresAt ? `<br><small>📅 ينتهي في: ${new Date(offer.expiresAt).toLocaleDateString('ar-SA')}</small>` : ''}
-            </div>
-        `;
-        container.appendChild(slide);
-        
-        const dot = document.createElement("button");
-        dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
-        dot.setAttribute('aria-label', `عرض ${index + 1} من ${offers.length}`);
-        dot.addEventListener('click', () => goToSlide(index));
-        dotsContainer.appendChild(dot);
-    });
-    
-    startAutoSlider();
-};
-
-function goToSlide(index) {
-    if (!offersData.length) return;
-    
-    currentSlide = index;
-    const container = document.getElementById("offersContainer");
-    const dots = document.querySelectorAll(".slider-dot");
-    
-    container.style.transform = `translateX(-${index * 100}%)`;
-    
-    dots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === index);
-    });
-    
-    resetAutoSlider();
-}
-
-function startAutoSlider() {
-    if (offersData.length <= 1) return;
-    
-    sliderInterval = setInterval(() => {
-        currentSlide = (currentSlide + 1) % offersData.length;
-        goToSlide(currentSlide);
-    }, 5000);
-}
-
-function resetAutoSlider() {
-    if (sliderInterval) {
-        clearInterval(sliderInterval);
-        startAutoSlider();
-    }
-}
-
-// ============ تحديث البيانات ============
-// تحديث عداد الزيارات
-window.updateVisitCounter = (count) => {
-    const counter = document.getElementById("visits");
-    
-    const duration = 1000;
-    const start = parseInt(counter.textContent.replace(/,/g, '')) || 0;
-    const end = count;
-    const increment = (end - start) / duration * 16;
-    
-    let current = start;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= end) {
-            current = end;
-            clearInterval(timer);
+            
+            try {
+                const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "Mustafa_Auto_Parts.vcf";
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showToast("تم حفظ جهة الاتصال بنجاح! 👤", "success");
+            } catch (error) {
+                console.error('❌ Error saving contact:', error);
+                showToast("تعذر حفظ جهة الاتصال", "error");
+            }
         }
-        counter.textContent = Math.floor(current).toLocaleString();
-    }, 16);
-    
-    counter.classList.add("fade-in");
-    setTimeout(() => counter.classList.remove("fade-in"), 600);
-};
 
-// تحديث QR Code
-window.updateQRCode = (qrUrl) => {
-    const qrImg = document.getElementById("qr");
-    qrImg.src = qrUrl || "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecesmustafa.netlify.app/";
-};
-
-// ============ لوحة التحكم ============
-const loginModal = document.getElementById("loginModal");
-
-document.getElementById("adminBtn").addEventListener('click', () => {
-    loginModal.style.display = "flex";
-    document.body.style.overflow = "hidden";
-    document.getElementById("adminPass").focus();
-});
-
-document.getElementById("closeModal").addEventListener('click', () => {
-    loginModal.style.display = "none";
-    document.body.style.overflow = "auto";
-});
-
-document.getElementById("loginBtn").addEventListener('click', () => {
-    const pass = document.getElementById("adminPass").value;
-    
-    if (pass === "Mustafa2025") {
-        window.location.href = "admin.html";
-    } else {
-        showToast("كلمة المرور غير صحيحة!", "error");
-        document.getElementById("adminPass").value = "";
-        document.getElementById("adminPass").focus();
-    }
-});
-
-// إدارة زر الإدارة (ظهور بعد التمرير)
-function setupAdminButtonBehavior() {
-    const adminSection = document.querySelector('.admin-section');
-    let hideTimer = null;
-    let scrollTimer = null;
-    let isCounting = false;
-
-    function startAdminTimer() {
-        if (isCounting) return;
-        
-        isCounting = true;
-        window.removeEventListener('scroll', handleScroll);
-        
-        setTimeout(() => {  
-            adminSection.classList.add('show');  
-            hideTimer = setTimeout(() => {  
-                adminSection.classList.remove('show');  
-            }, 3000);  
-        }, 19000);
-    }
-
-    function handleScroll() {
-        if (scrollTimer) {
-            clearTimeout(scrollTimer);
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById("toast");
+            if (!toast) return;
+            
+            toast.textContent = message;
+            
+            const colors = {
+                'success': '#4CAF50',
+                'error': '#ff4d4d',
+                'warning': '#ff9900',
+                'info': 'var(--accent)'
+            };
+            
+            toast.style.background = colors[type] || colors.info;
+            toast.classList.add("show");
+            
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
         }
-        
-        scrollTimer = setTimeout(() => {
-            startAdminTimer();
-        }, 500);
-    }
 
-    window.addEventListener('scroll', handleScroll);
-    
-    document.getElementById('adminBtn').addEventListener('click', () => {  
-        if (hideTimer) clearTimeout(hideTimer);  
-    });
-}
-
-// ============ إدارة ساعات العمل ============
-function updateWorkTimeStatus() {
-    const now = new Date();
-    const day = now.getDay();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const currentTime = hour * 60 + minute;
-    
-    const workTimeElement = document.getElementById("work-time");
-    const nextOpeningElement = document.getElementById("next-opening");
-    
-    // الأوقات بالدقائق
-    const opensAtWeekday = 9 * 60;
-    const closesAtWeekday = 20 * 60;
-    const opensAtSaturday = 9 * 60;
-    const closesAtSaturday = 16 * 60;
-    const fridayPrayerClose = 12 * 60 + 15;
-    const fridayReopen = 15 * 60;
-    
-    let isOpen = false;
-    let statusText = '';
-    let nextOpening = '';
-    
-    // يوم الأحد: مغلق
-    if (day === 0) {
-        statusText = 'مغلق - يوم الأحد';
-        nextOpening = 'يفتح غداً الإثنين الساعة 09:00';
-    }
-    // يوم السبت
-    else if (day === 6) {
-        if (currentTime >= opensAtSaturday && currentTime < closesAtSaturday) {
-            isOpen = true;
-            statusText = 'مفتوح الآن - يوم السبت من 09:00 إلى 16:00';
-            nextOpening = 'يغلق الساعة 16:00';
-        } else if (currentTime < opensAtSaturday) {
-            statusText = 'مغلق الآن - يوم السبت من 09:00 إلى 16:00';
-            nextOpening = 'يفتح الساعة 09:00';
-        } else {
-            statusText = 'مغلق - يوم السبت من 09:00 إلى 16:00';
-            nextOpening = 'مغلق اليوم الأحد يفتح الإثنين 09:00';
-        }
-    }
-    // يوم الجمعة
-    else if (day === 5) {
-        if (currentTime >= opensAtWeekday && currentTime < fridayPrayerClose) {
-            isOpen = true;
-            statusText = 'مفتوح الآن - يغلق الساعة 12:15 (قبل صلاة الجمعة)';
-            nextOpening = 'يعود للفتح الساعة 15:00';
-        } else if (currentTime >= fridayReopen && currentTime < closesAtWeekday) {
-            isOpen = true;
-            statusText = 'مفتوح الآن - الجمعة من 09:00 إلى 20:00';
-            nextOpening = 'يغلق الساعة 20:00';
-        } else if (currentTime >= fridayPrayerClose && currentTime < fridayReopen) {
-            statusText = 'مغلق للصلاة - الجمعة من 09:00 إلى 20:00';
-            nextOpening = 'يفتح الساعة 15:00';
-        } else {
-            statusText = 'مغلق - الجمعة من 09:00 إلى 20:00';
-            nextOpening = 'يفتح غداً السبت الساعة 09:00';
-        }
-    }
-    // أيام الأسبوع (الإثنين إلى الخميس)
-    else if (day >= 1 && day <= 4) {
-        if (currentTime >= opensAtWeekday && currentTime < closesAtWeekday) {
-            isOpen = true;
-            statusText = 'مفتوح الآن - من 09:00 إلى 20:00';
-            nextOpening = 'يغلق الساعة 20:00';
-        } else if (currentTime < opensAtWeekday) {
-            statusText = 'مغلق الآن - من 09:00 إلى 20:00';
-            nextOpening = 'يفتح الساعة 09:00';
-        } else {
-            statusText = 'مغلق - من 09:00 إلى 20:00';
-            nextOpening = 'يفتح غداً الساعة 09:00';
-        }
-    }
-    
-    const statusIcon = isOpen ? '🟢' : '🔴';
-    workTimeElement.innerHTML = `${statusIcon} ${statusText}`;
-    nextOpeningElement.textContent = nextOpening;
-    workTimeElement.style.color = isOpen ? '#2ecc71' : '#e74c3c';
-}
-
-// ============ إدارة حالة الاتصال ============
-function updateOnlineStatus() {
-    isOnline = navigator.onLine;
-    
-    if (isOnline) {
-        console.log("🌐 Online - Syncing data...");
-        
-        // محاولة مزامنة البيانات المحلية
-        if (typeof syncLocalData === 'function') {
-            setTimeout(syncLocalData, 1000);
-        }
-        
-        // إعادة تحميل العروض
-        if (typeof loadOffers === 'function') {
-            setTimeout(() => loadOffers(), 2000);
-        }
-        
-    } else {
-        console.log("⚠️ Offline - Using cached data");
-    }
-    
-    // تحديث واجهة المستخدم
-    const statusIndicator = document.getElementById('onlineStatus');
-    if (statusIndicator) {
-        statusIndicator.innerHTML = isOnline ? 
-            '<i class="fas fa-wifi"></i> متصل' : 
-            '<i class="fas fa-wifi-slash"></i> دون اتصال';
-        statusIndicator.style.color = isOnline ? '#2ecc71' : '#e74c3c';
-    }
-}
-
-// إضافة عنصر لعرض حالة الاتصال
-function addConnectionIndicator() {
-    const indicator = document.createElement('div');
-    indicator.id = 'onlineStatus';
-    indicator.style.cssText = `
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    `;
-    document.body.appendChild(indicator);
-    updateOnlineStatus();
-}
-
-// ============ تحميل بيانات افتراضية ============
-// تحميل بيانات افتراضية فورية أثناء اتصال Firebase
-const loadFallbackData = () => {
-    // بيانات افتراضية للعروض
-    const fallbackOffers = [
-        {
-            id: "default_1",
-            text: "🎉 خصم خاص 25% على جميع قطع الغيار اليابانية هذا الأسبوع!",
-            active: true,
-            category: "discount"
-        },
-        {
-            id: "default_2", 
-            text: "🔧 فحص مجاني للسيارة مع أي صيانة بقيمة فوق 300 درهم",
-            active: true,
-            category: "service"
-        }
-    ];
-    
-    if (window.loadOffersCallback) {
-        window.loadOffersCallback(fallbackOffers);
-    }
-    
-    // تحديث عداد الزيارات من localStorage
-    try {
-        const localVisits = JSON.parse(localStorage.getItem('mustafa_visits_local') || '{"total":1}');
-        if (window.updateVisitCounter) {
-            window.updateVisitCounter(localVisits.total || 1);
-        }
-    } catch (e) {
-        console.log("⚠️ Could not load local visits");
-    }
-};
-
-// استخدام البيانات الافتراضية فوراً ثم تحديثها من Firebase
-loadFallbackData();
-
-// ============ تهيئة Firebase والبيانات ============
-// تهيئة Firebase والبيانات
-document.addEventListener('DOMContentLoaded', () => {
-    initFirebase().then(() => {
-        incrementVisit();
-        loadOffers();
-        loadQR();
-        
-        setTimeout(() => {
-            getAnalyticsData(7).then(data => {
-                console.log('📊 Analytics data:', data);
+        // ============ إدارة العروض ============
+        window.loadOffersCallback = function(offers) {
+            offersData = offers || [];
+            const container = document.getElementById("offersContainer");
+            const dotsContainer = document.getElementById("sliderDots");
+            
+            if (!container) return;
+            
+            if (offersData.length === 0) {
+                container.innerHTML = `
+                    <div class="offer-card">
+                        <div class="offer-text">
+                            🎉 خصومات تصل إلى 30% على جميع قطع الغيار هذا الأسبوع!
+                            <br><small>استفسر الآن للحصول على أفضل الأسعار</small>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            
+            offersData.forEach((offer, index) => {
+                const slide = document.createElement("div");
+                slide.className = "offer-card";
+                slide.innerHTML = `
+                    <div class="offer-text">
+                        ${offer.text || 'عرض خاص'}
+                        ${offer.expiresAt ? `<br><small>📅 ينتهي في: ${new Date(offer.expiresAt).toLocaleDateString('ar-SA')}</small>` : ''}
+                    </div>
+                `;
+                container.appendChild(slide);
+                
+                const dot = document.createElement("button");
+                dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
+                dot.setAttribute('aria-label', `عرض ${index + 1} من ${offersData.length}`);
+                dot.addEventListener('click', () => goToSlide(index));
+                dotsContainer.appendChild(dot);
             });
-        }, 2000);
-    }).catch(err => {
-        console.error('❌ Firebase init failed:', err);
-        showToast('حدث خطأ في الاتصال بالخادم', 'error');
-    });
-});
-</script>
+            
+            if (offersData.length > 1) {
+                startAutoSlider();
+            }
+        };
+
+        function goToSlide(index) {
+            if (!offersData.length) return;
+            
+            currentSlide = index;
+            const container = document.getElementById("offersContainer");
+            const dots = document.querySelectorAll(".slider-dot");
+            
+            if (container) {
+                container.style.transform = `translateX(-${index * 100}%)`;
+            }
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle("active", i === index);
+            });
+            
+            resetAutoSlider();
+        }
+
+        function startAutoSlider() {
+            if (offersData.length <= 1) return;
+            
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+            }
+            
+            sliderInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % offersData.length;
+                goToSlide(currentSlide);
+            }, 5000);
+        }
+
+        function resetAutoSlider() {
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+                startAutoSlider();
+            }
+        }
+
+        // ============ تحديث البيانات ============
+        window.updateVisitCounter = function(count) {
+            const counter = document.getElementById("visits");
+            if (!counter) return;
+            
+            const duration = 1000;
+            const start = parseInt(counter.textContent.replace(/,/g, '')) || 0;
+            const end = count || start;
+            const increment = (end - start) / (duration / 16);
+            
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        };
+
+        window.updateQRCode = function(qrUrl) {
+            const qrImg = document.getElementById("qr");
+            if (qrImg) {
+                qrImg.src = qrUrl || "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecesmustafa.netlify.app/";
+            }
+        };
+
+        // ============ دوال متنوعة ============
+        function updateWorkTimeStatus() {
+            const now = new Date();
+            const day = now.getDay();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const currentTime = hour * 60 + minute;
+            
+            const workTimeElement = document.getElementById("work-time");
+            const nextOpeningElement = document.getElementById("next-opening");
+            
+            if (!workTimeElement) return;
+            
+            const opensAtWeekday = 9 * 60;
+            const closesAtWeekday = 20 * 60;
+            const opensAtSaturday = 9 * 60;
+            const closesAtSaturday = 16 * 60;
+            const fridayPrayerClose = 12 * 60 + 15;
+            const fridayReopen = 15 * 60;
+            
+            let isOpen = false;
+            let statusText = '';
+            let nextOpening = '';
+            
+            if (day === 0) {
+                statusText = 'مغلق - يوم الأحد';
+                nextOpening = 'يفتح غداً الإثنين الساعة 09:00';
+            }
+            else if (day === 6) {
+                if (currentTime >= opensAtSaturday && currentTime < closesAtSaturday) {
+                    isOpen = true;
+                    statusText = 'مفتوح الآن - يوم السبت من 09:00 إلى 16:00';
+                    nextOpening = 'يغلق الساعة 16:00';
+                } else if (currentTime < opensAtSaturday) {
+                    statusText = 'مغلق الآن - يوم السبت من 09:00 إلى 16:00';
+                    nextOpening = 'يفتح الساعة 09:00';
+                } else {
+                    statusText = 'مغلق - يوم السبت من 09:00 إلى 16:00';
+                    nextOpening = 'مغلق اليوم الأحد يفتح الإثنين 09:00';
+                }
+            }
+            else if (day === 5) {
+                if (currentTime >= opensAtWeekday && currentTime < fridayPrayerClose) {
+                    isOpen = true;
+                    statusText = 'مفتوح الآن - يغلق الساعة 12:15 (قبل صلاة الجمعة)';
+                    nextOpening = 'يعود للفتح الساعة 15:00';
+                } else if (currentTime >= fridayReopen && currentTime < closesAtWeekday) {
+                    isOpen = true;
+                    statusText = 'مفتوح الآن - الجمعة من 09:00 إلى 20:00';
+                    nextOpening = 'يغلق الساعة 20:00';
+                } else if (currentTime >= fridayPrayerClose && currentTime < fridayReopen) {
+                    statusText = 'مغلق للصلاة - الجمعة من 09:00 إلى 20:00';
+                    nextOpening = 'يفتح الساعة 15:00';
+                } else {
+                    statusText = 'مغلق - الجمعة من 09:00 إلى 20:00';
+                    nextOpening = 'يفتح غداً السبت الساعة 09:00';
+                }
+            }
+            else if (day >= 1 && day <= 4) {
+                if (currentTime >= opensAtWeekday && currentTime < closesAtWeekday) {
+                    isOpen = true;
+                    statusText = 'مفتوح الآن - من 09:00 إلى 20:00';
+                    nextOpening = 'يغلق الساعة 20:00';
+                } else if (currentTime < opensAtWeekday) {
+                    statusText = 'مغلق الآن - من 09:00 إلى 20:00';
+                    nextOpening = 'يفتح الساعة 09:00';
+                } else {
+                    statusText = 'مغلق - من 09:00 إلى 20:00';
+                    nextOpening = 'يفتح غداً الساعة 09:00';
+                }
+            }
+            
+            const statusIcon = isOpen ? '🟢' : '🔴';
+            workTimeElement.innerHTML = `${statusIcon} ${statusText}`;
+            
+            if (nextOpeningElement) {
+                nextOpeningElement.textContent = nextOpening;
+            }
+            
+            workTimeElement.style.color = isOpen ? '#2ecc71' : '#e74c3c';
+        }
+
+        // ============ دوال التعامل مع Firebase ============
+        async function trackInstallInFirebase() {
+            try {
+                if (firebaseFunctions && firebaseFunctions.incrementInstall) {
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const deviceType = isMobile ? 'mobile' : 'desktop';
+                    
+                    await firebaseFunctions.incrementInstall(deviceType);
+                    console.log(`✅ Install tracked for ${deviceType}`);
+                    
+                    showToast('تم تثبيت التطبيق بنجاح! 🎉', 'success');
+                }
+            } catch (error) {
+                console.error('❌ Error tracking install:', error);
+            }
+        }
+
+        // ============ البيانات الافتراضية ============
+        function loadFallbackData() {
+            const fallbackOffers = [
+                {
+                    id: "default_1",
+                    text: "🎉 خصم خاص 25% على جميع قطع الغيار اليابانية هذا الأسبوع!",
+                    active: true,
+                    category: "discount"
+                },
+                {
+                    id: "default_2", 
+                    text: "🔧 فحص مجاني للسيارة مع أي صيانة بقيمة فوق 300 درهم",
+                    active: true,
+                    category: "service"
+                }
+            ];
+            
+            // تحديث العروض
+            if (window.loadOffersCallback) {
+                window.loadOffersCallback(fallbackOffers);
+            }
+            
+            // تحديث عداد الزيارات
+            try {
+                const localVisits = JSON.parse(localStorage.getItem('mustafa_visits_local') || '{"total":1}');
+                if (window.updateVisitCounter) {
+                    window.updateVisitCounter(localVisits.total || 1);
+                }
+            } catch (e) {
+                console.log("⚠️ Could not load local visits");
+            }
+            
+            // تحديث QR Code
+            const qrImg = document.getElementById("qr");
+            if (qrImg && !qrImg.src) {
+                qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://piecesmustafa.netlify.app/";
+            }
+        }
+    </script>
 </body>
 </html>
